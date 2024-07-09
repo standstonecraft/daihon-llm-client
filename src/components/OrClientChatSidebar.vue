@@ -1,13 +1,13 @@
 <template>
-  <v-sheet class="fill-height" max-width="250">
+  <v-sheet class="fill-height" max-width="250" max-height="100%">
     <!-- サイドバー閉じるボタン -->
-    <div v-if="collapsed" class="" style="position: relative;">
-      <v-btn @click="collapsed = false" rounded="xl" style="position: absolute;left: calc(100% - 20px);">
+    <div v-if="collapsed" style="position: relative;">
+      <v-btn @click="collapsed = false" rounded="xl" style="position: absolute;left: calc(100% - 20px);top: 8px;">
         <v-icon>mdi-chevron-double-right</v-icon>
       </v-btn>
     </div>
     <!-- サイドバー -->
-    <div v-if="!collapsed" class="d-flex flex-column ga-2">
+    <div v-if="!collapsed" class="d-flex flex-column ga-2" style="max-height: 100%;">
       <div class="pa-2" style="width: 250px;">
         <div class="d-flex justify-end">
           <v-btn @click="collapsed = true">
@@ -19,8 +19,7 @@
         </v-btn>
       </div>
       <v-divider class="border-opacity-50 mt-2"></v-divider>
-      <div class="d-flex flex-column flex-shrink-1 fill-height overflow-y-auto pl-2 pr-1"
-        style="max-height: calc(100vh - 296px);">
+      <div class="flex-1-1-100 overflow-y-scroll pl-2 pr-1">
         <v-tooltip v-for="chat in chats" :key="chat.id" location="end center" origin="top start">
           <template v-slot:activator="{ props }">
             <!-- chat sheet -->
