@@ -2,8 +2,9 @@
   <div class="fill-height fill-width">
     <div>
       <v-toolbar density="comfortable">
-        <v-toolbar-title>Title</v-toolbar-title>
-        <v-tabs v-model="tab" stacked color="primary" class="w-100">
+        <v-img src="@/assets/logo.png" :width="24" class="ml-2"></v-img>
+        <span class="text-h6 font-weight-bold ml-2">Daihon</span>
+        <v-tabs v-model="tab" stacked color="primary" class="ml-2 w-100">
           <v-tab value="chat">
             <v-icon>mdi-message-text</v-icon>
             <span class="text-caption">CHAT</span>
