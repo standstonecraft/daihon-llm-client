@@ -17,7 +17,7 @@ const configStore = (db: DbType) => ({
    * @returns APIキー
    */
   get: async () => await db.config.get(CONFIG_ID) ?? {
-    id: -1,
+    id: 0,
     apiKey: "",
     darkTheme: true,
     streaming: false,
