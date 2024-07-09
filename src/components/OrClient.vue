@@ -2,7 +2,7 @@
   <div class="fill-height fill-width">
     <div>
       <v-toolbar density="comfortable">
-        <v-img src="@/assets/logo.png" :width="24" class="ml-2"></v-img>
+        <v-img src="@/assets/logo.svg" :width="24" class="ml-2"></v-img>
         <span class="text-h6 font-weight-bold ml-2">Daihon</span>
         <v-tabs v-model="tab" stacked color="primary" class="ml-2 w-100">
           <v-tab value="chat">
