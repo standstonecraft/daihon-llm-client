@@ -31,7 +31,7 @@
         </v-btn>
       </v-toolbar>
     </div>
-    <v-tabs-window v-model="tab" class="fill-height overflow-y-auto" style="max-height: calc(100vh - 96px);">
+    <v-tabs-window v-model="tab" class="fill-height overflow-y-auto" style="max-height: calc(100vh - 86px);">
       <v-tabs-window-item value="chat" class="fill-height">
         <OrClientChat />
       </v-tabs-window-item>
