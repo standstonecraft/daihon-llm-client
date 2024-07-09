@@ -2,7 +2,7 @@
   <div class="d-flex flex-column pa-3" :class="props.enabled ? '' : 'text-disabled'">
     <!-- display -->
     <span class="text-subtitle-1 font-weight-bold">{{ props.role }}({{ agentName }}):</span>
-    <p v-if="structuredContent.length < 2" v-html="parsedContent" class="pl-4">
+    <p v-if="structuredContent?.length < 2" v-html="parsedContent" class="pl-4">
     </p>
 
     <v-expansion-panels v-else model-value="answer" multiple>
