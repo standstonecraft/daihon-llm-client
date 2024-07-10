@@ -38,7 +38,7 @@ export async function requestOpenRouter(chatId: number, agentId: number) {
   const streaming = config.streaming;
 
   // Create the completion parameter based on the streaming flag
-  const completionParam = await createParameter(chatId, agentId, streaming);
+  const completionParam = await createParameter(chatId, agentId, config.commonPrompt, streaming);
   console.trace(completionParam);
 
   try {
@@ -171,11 +171,12 @@ function contentToMessageParam(c: ChatContent, agentName: string): ChatCompletio
  * Creates the parameter object for chat completion.
  * @param chatId The ID of the chat.
  * @param agentId The ID of the agent.
+ * @param commonPrompt The common prompt.
  * @param streaming Whether to use streaming or not.
  * @returns The chat completion parameter object.
  * @throws {Error} If the agent or model is not found. If one or more content is invalid.
  */
-async function createParameter(chatId: number, agentId: number, streaming: boolean) {
+async function createParameter(chatId: number, agentId: number, commonPrompt: string | null, streaming: boolean) {
   // Get the agent with the given ID
   const agent = await store.agents.get(agentId);
   // If the agent is not found, throw an error
@@ -189,10 +190,13 @@ async function createParameter(chatId: number, agentId: number, streaming: boole
     throw new Error(`Agent '${agent.name}': The model is missing. Please check the agent settings.`);
   }
   // Create the system message parameter
-  const systemMessage: ChatCompletionUserMessageParam[] =
-    agent.systemPrompt
-      ? [{ role: "user", content: agent.systemPrompt }]
-      : [];
+  const systemMessage: ChatCompletionUserMessageParam[] = [];
+  if (commonPrompt) {
+    systemMessage.push({ role: "user", content: commonPrompt });
+  }
+  if (agent.systemPrompt) {
+    systemMessage.push({ role: "user", content: agent.systemPrompt });
+  }
   // Get all enabled contents with the given chat ID
   const contents = await store.contents.getAll()
     .where("chatId").equals(chatId).and(c => c.enabled).toArray();

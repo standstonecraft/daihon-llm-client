@@ -4,8 +4,9 @@ import { type DbType } from "../dataStore";
  * 設定情報
  */
 export type Config = {
-  id?: number;
-  apiKey?: string;
+  id: number;
+  apiKey: string;
+  commonPrompt: string;
   darkTheme?: boolean;
   streaming: boolean;
 }
@@ -19,6 +20,7 @@ const configStore = (db: DbType) => ({
   get: async () => await db.config.get(CONFIG_ID) ?? {
     id: 0,
     apiKey: "",
+    commonPrompt: "",
     darkTheme: true,
     streaming: false,
   },
