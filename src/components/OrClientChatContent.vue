@@ -46,9 +46,6 @@
 import store from '@/ts/dataStore';
 import { ChatContent } from '@/ts/dataStore/chatContents';
 import { asyncComputed } from '@vueuse/core'
-import { Marked } from "marked";
-import markedCodeFormat from 'marked-code-format'
-import DOMPurify from 'dompurify';
 import OrClientChatContentStructured from './OrClientChatContentStructured.vue';
 
 const props = defineProps<ChatContent>();
@@ -67,20 +64,6 @@ const agent = asyncComputed(async () => await store.agents.get(props.agentId));
 const agentName = computed(() =>
   props.agentId == -1 ? 'You' : agent.value?.name || 'Unknown');
 
-const marked = new Marked()
-  .use(
-    markedCodeFormat({
-      /* Prettier options */
-    })
-  )
-const purify = DOMPurify(window);
-/**
- * MarkdownをHTMLに変換する。サニタイズも行う
- */
-const parsedContent = asyncComputed(async () => {
-  // return await marked.parse(props.content);
-  return purify.sanitize(await marked.parse(props.content));
-});
 /**
  * 有効状態を切り替える
  * 
