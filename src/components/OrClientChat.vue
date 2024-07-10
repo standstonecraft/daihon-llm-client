@@ -3,7 +3,8 @@
     <!-- sidebar -->
     <OrClientChatSidebar v-model="selectedChatId" @chat-selected="(id: number) => selectedChatId = id" />
     <!-- message list -->
-    <div v-if="selectedChatId !== -1" class="fill-height w-100 d-flex flex-column justify-end">
+    <div v-if="selectedChatId !== -1" class="fill-height w-100 d-flex flex-column justify-end"
+      style="max-width: calc(100% - 250px);">
       <!-- tools -->
       <OrClientChatToolbar :chat-id="selectedChatId" v-model="selectedAgentId" class="flex-0-0" />
       <v-divider></v-divider>

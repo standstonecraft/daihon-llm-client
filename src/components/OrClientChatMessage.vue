@@ -6,7 +6,7 @@
         <!-- カミシモ用スペーサー -->
       </div>
       <!-- card -->
-      <v-sheet class="flex-0-1" border>
+      <v-sheet class="flex-0-1" border style="max-width: calc(100% - 72px);">
         <v-tabs v-model="tab" v-if="contents.length > 1">
           <v-tab v-for="(cont, index) in contents" :value="index" density="compact">
             {{ getAgentName(cont) }}
@@ -29,7 +29,6 @@
     </v-dialog>
   </div>
 </template>
-
 <script lang="ts" setup>
 import useLiveQuery from '@/ts/withDexie';
 import store from '@/ts/dataStore';
