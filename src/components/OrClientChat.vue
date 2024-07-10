@@ -6,11 +6,11 @@
     <div v-if="selectedChatId !== -1" class="fill-height w-100 d-flex flex-column justify-end"
       style="max-width: calc(100% - 250px);">
       <!-- tools -->
-      <OrClientChatToolbar :chat-id="selectedChatId" v-model="selectedAgentId" class="flex-0-0" />
+      <OrClientChatToolbar :chat-id="selectedChatId" v-model="selectedAgentIds" class="flex-0-0" />
       <v-divider></v-divider>
       <div class="d-flex flex-column ga-3 overflow-y-auto pa-3 flex-1-1">
         <div v-for="message in messages" :key="message.id">
-          <OrClientChatMessage v-bind="{ chatId: selectedChatId, messageId: message.id, agentId: selectedAgentId }"
+          <OrClientChatMessage v-bind="{ chatId: selectedChatId, messageId: message.id, agentIds: selectedAgentIds }"
             v-model="newAddedContentId" />
         </div>
 
@@ -37,7 +37,7 @@ import { requestOpenRouter } from '@/ts/llm';
 const messages = useLiveQuery<ChatMessage[]>(
   () => store.messages.getAll().where("chatId").equals(selectedChatId.value).toArray(), [selectedChatId]);
 const newAddedContentId = ref(-1);
-const selectedAgentId = ref<number>();
+const selectedAgentIds = ref<number[]>();
 
 async function addContent() {
   const newMessageId = await store.messages.add({
@@ -70,10 +70,10 @@ watch(selectedChatId, () => {
 
 const showErrorDialog = inject("showErrorDialog", (text: string) => { });
 const chatWaiting = ref(false);
-const sendChat = async (chatId: number, agentId?: number) => {
-  if (agentId) {
+const sendChat = async (chatId: number, agentIds?: number[]) => {
+  if (agentIds) {
     chatWaiting.value = true;
-    await requestOpenRouter(chatId, agentId);
+    await requestOpenRouter(chatId, agentIds);
     chatWaiting.value = false;
   } else {
     showErrorDialog("Please select an agent.");

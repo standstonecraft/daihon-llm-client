@@ -8,10 +8,17 @@ import { Stream } from "openai/streaming.mjs";
 /**
  * Sends a request to OpenRouter API to generate a response for a given chat and agent.
  * @param chatId The ID of the chat.
- * @param agentId The ID of the agent.
+ * @param agentIds The ID of the agent.
  * @throws Error if the configuration is not found.
  */
-export async function requestOpenRouter(chatId: number, agentId: number) {
+export async function requestOpenRouter(chatId: number, agentIds: number[]) {
+  // Add a new message to the store with the current timestamp
+  const messageId = await store.messages.add({ chatId, createdAt: new Date().toISOString() });
+  await Promise.all(agentIds.map(agentId =>
+    requestOpenRouterSingle(chatId, messageId, agentId)
+  ));
+}
+export async function requestOpenRouterSingle(chatId: number, messageId: number, agentId: number) {
   // Get the configuration from the store
   const config = await store.config.get();
   if (!config) {
@@ -27,9 +34,6 @@ export async function requestOpenRouter(chatId: number, agentId: number) {
     },
     dangerouslyAllowBrowser: true,
   });
-
-  // Add a new message to the store with the current timestamp
-  const messageId = await store.messages.add({ chatId, createdAt: new Date().toISOString() });
 
   // Create the base content object with the chat ID, message ID, and agent ID
   const contentBase = createContentBase(chatId, messageId, agentId);
@@ -190,12 +194,15 @@ async function createParameter(chatId: number, agentId: number, commonPrompt: st
     throw new Error(`Agent '${agent.name}': The model is missing. Please check the agent settings.`);
   }
   // Create the system message parameter
-  const systemMessage: ChatCompletionUserMessageParam[] = [];
+  const systemMessage: ChatCompletionSystemMessageParam = {
+    role: "system",
+    content: `あなたの名前は"${agent.name}"です。`
+  };
   if (commonPrompt) {
-    systemMessage.push({ role: "user", content: commonPrompt });
+    systemMessage.content += "\n\n" + commonPrompt;
   }
   if (agent.systemPrompt) {
-    systemMessage.push({ role: "user", content: agent.systemPrompt });
+    systemMessage.content += "\n\n" + agent.systemPrompt;
   }
   // Get all enabled contents with the given chat ID
   const contents = await store.contents.getAll()
@@ -210,13 +217,13 @@ async function createParameter(chatId: number, agentId: number, commonPrompt: st
   if (streaming) {
     return {
       model: model,
-      messages: [...systemMessage, ...messages],
+      messages: [systemMessage, ...messages],
       stream: true
     } as const satisfies ChatCompletionStreamParams;
   }
   // Return a non-streaming parameter object
   return {
-    messages: [...systemMessage, ...messages],
+    messages: [systemMessage, ...messages],
     model: model,
   } as const satisfies ChatCompletionCreateParamsNonStreaming;
 }

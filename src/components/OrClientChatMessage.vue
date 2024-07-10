@@ -25,7 +25,7 @@
     <!-- content edit dialog -->
     <v-dialog v-model="contentEditDialog" class="w-75">
       <OrClientChatContentEdit :content-id="editingContentId" @close="closeContentEditDialog"
-        @send="sendChat(props.chatId, props.agentId)" />
+        @send="sendChat(props.chatId, props.agentIds)" />
     </v-dialog>
   </div>
 </template>
@@ -36,8 +36,8 @@ import { Agent } from '@/ts/dataStore/agents';
 import { ChatContent } from '@/ts/dataStore/chatContents';
 
 const newAddedContentId = defineModel<number>({ required: true });
-const props = defineProps<{ chatId: number, messageId: number, agentId: number | undefined }>();
-const sendChat = inject("sendChat", (chatId: number, agentId?: number) => { });
+const props = defineProps<{ chatId: number, messageId: number, agentIds: number[] | undefined }>();
+const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
 const tab = ref("0");
 
 const computedMessageId = computed(() => props.messageId);
@@ -56,7 +56,7 @@ function getAgentName(content: ChatContent) {
     case 'user':
       return `You`;
     default:
-      return `${capitalize(content.role)}: ${agentName}`
+      return agentName;
   }
 }
 /**

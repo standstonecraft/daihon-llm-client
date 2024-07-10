@@ -6,14 +6,14 @@
     <!-- title input -->
     <v-text-field v-model="chatTitle" label="Title" density="comfortable" hide-details="auto"></v-text-field>
     <!-- agent select -->
-    <v-select v-model="agentId" :items="agents" item-title="name" item-value="id" label="Agent" density="comfortable"
-      hide-details="auto" style="max-width: 14rem;">
+    <v-select v-model="agentIds" :items="agents" item-title="name" item-value="id" multiple label="Agent"
+      density="comfortable" hide-details="auto" style="max-width: 14rem;">
       <template v-slot:item="{ props, item }">
         <v-list-item v-bind="props" :subtitle="item.raw.model"></v-list-item>
       </template>
     </v-select>
     <!-- send button -->
-    <v-btn @click="sendChat(props.chatId, agentId)" variant="elevated" size="x-large">
+    <v-btn @click="sendChat(props.chatId, agentIds)" variant="elevated" size="x-large">
       <v-icon color="primary">mdi-send</v-icon>
     </v-btn>
   </div>
@@ -25,9 +25,9 @@ import { Agent } from '@/ts/dataStore/agents';
 import useLiveQuery from '@/ts/withDexie';
 
 const props = defineProps<{ chatId: number }>();
-const agentId = defineModel<number>();
+const agentIds = defineModel<number[]>();
 const agents = useLiveQuery<Agent[]>(() => store.agents.getAll().toArray() || [], []);
-const sendChat = inject("sendChat", (chatId: number, agentId?: number) => { });
+const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
 const chatWaiting = inject("chatWaiting", ref(false));
 
 const chatTitle = ref<string>((await store.chats.get(props.chatId))?.title || "");

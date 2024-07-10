@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div v-for="subContent in structuredContent.subContents" :key="subContent.value">
+    <div v-for="subContent in structured.subContents" :key="subContent.value">
       <!-- <v-btn :append-icon="listOpened.includes(subContent.value) ? '$collapse' : '$expand'" :text="subContent.title"
         @click="toggleList(subContent.value)" variant="text"></v-btn> -->
       <div class="cursor-pointer" @click="toggleList(subContent.value)">
-        <span class="text-capitalize text-subtitle">{{ subContent.title }}</span>
+        <span class="text-capitalize text-subtitle">{{ subContent.value }}</span>
         <v-icon>{{ listOpened.includes(subContent.value) ? '$collapse' : '$expand' }}</v-icon>
       </div>
       <v-expand-transition>
@@ -12,7 +12,7 @@
         </div>
       </v-expand-transition>
     </div>
-    <p v-html="structuredContent.remaining" class="pl-4"></p>
+    <p v-html="structured.remaining" class="pl-4"></p>
   </div>
 </template>
 <script lang="ts" setup>
@@ -24,31 +24,40 @@ const props = defineProps({
   rawContent: { type: String, required: true }
 });
 
-const structuredContent = computedAsync<{
+type StructuredType = {
   subContents: {
-    title: string;
     value: string;
     text: string;
   }[];
   remaining: string;
-}>(async () => {
-  if (!props.rawContent) return { subContents: [], remaining: props.rawContent, open: [] };
-  const intro = extractAndRemove(props.rawContent, /<llm_intro>(.*?)<\/llm_intro>/s);
-  intro[0] = (await marked.parse(intro[0])).trim();
-  const answer = extractAndRemove(intro[1], /<llm_answer>(.*?)<\/llm_answer>/s);
-  answer[0] = (await marked.parse(answer[0])).trim();
-  const outro = extractAndRemove(answer[1], /<llm_outro>(.*?)<\/llm_outro>/s);
-  outro[0] = (await marked.parse(outro[0])).trim();
-  const ret = {
-    subContents: [
-      { title: "INTRO", value: "intro", text: intro[0] },
-      { title: "ANSWER", value: "answer", text: answer[0] },
-      { title: "OUTRO", value: "outro", text: outro[0] },
-    ].filter(x => x.text),
-    remaining: (await marked.parse(outro[1])).trim()
-  };
+};
+const defaultStructured: StructuredType = { subContents: [], remaining: "" };
+/** tag names in response(exclude 'llm_') */
+const responseTagNames = ["answer", "question", "conclusion", "outro"];
+/** tag names which expansion automatically open */
+const priorTagNames = ["question", "conclusion"];
+
+/**
+ * Parses the response content and extracts subContents, remaining content, and opened tag names.
+ *
+ * @return {Promise<{ subContents: Array<{ value: string, text: string }>, remaining: string, opened: string[] }>} An object containing the parsed subContents, remaining content, and opened tag names.
+ */
+const parseResponse = async () => {
+  if (!props.rawContent) return { ...defaultStructured };
+  let subContents = responseTagNames.map(x => ({ value: x, text: "" }));
+  let remaining = props.rawContent;
+  for (const obj of subContents) {
+    [obj.text, remaining] = extractAndRemove(remaining, new RegExp(`<llm_${obj.value}>(.*?)</llm_${obj.value}>`, 's'));
+    obj.text = (await marked.parse(obj.text)).trim();
+  }
+  remaining = (await marked.parse(remaining)).trim();
+  subContents = subContents.filter(x => x.text);
+  const availables = subContents.map(x => x.value);
+  const opened = priorTagNames.filter(p => availables.includes(p));
+  const ret = { subContents, remaining, opened };
   return ret;
-}, { subContents: [], remaining: "" }, { lazy: true });
+};
+const structured = computedAsync<StructuredType>(parseResponse, { ...defaultStructured }, { lazy: true });
 
 const listOpened = ref<string[]>([]);
 function toggleList(value: string) {
@@ -58,13 +67,9 @@ function toggleList(value: string) {
     listOpened.value.push(value);
   }
 }
-watch(structuredContent, () => {
-  const ret: string[] = [];
-  if (structuredContent.value.subContents.map(x => x.value).includes("answer")) ret.push("answer");
-  if (structuredContent.value.subContents.map(x => x.value).includes("question")) ret.push("question");
-  listOpened.value = ret;
+watch(structured, () => {
+  listOpened.value = priorTagNames.filter(x => structured.value.subContents.some(y => y.value === x));
 })
-
 /**
  * retrieve and remove matched text
  * @param text target text
