@@ -16,8 +16,8 @@
     <v-select v-model="inputs.contentType" :items="contentTypes" label="ContentType" density="comfortable"
       hide-details="auto" class="flex-0-1 mt-3" style="min-width: 10rem;"></v-select>
     <!-- content input -->
-    <v-textarea label="Content" v-model="inputs.content" @keyup.ctrl.enter="saveAndSend" rows="1" auto-grow
-      hide-details="auto" density="comfortable" class="mt-3"></v-textarea>
+    <v-textarea ref="content" label="Content" v-model="inputs.content" @keyup.ctrl.enter="saveAndSend" rows="1"
+      auto-grow hide-details="auto" density="comfortable" class="mt-3"></v-textarea>
     <div v-if="inputs.contentType == 'image_url'">
       <div v-if="inputs.contentImage">
         <v-img :width="60" cover :src="inputs.contentImage"></v-img>
@@ -52,10 +52,12 @@ import { Agent } from '@/ts/dataStore/agents';
 import { ChatContent } from '@/ts/dataStore/chatContents';
 import useLiveQuery from '@/ts/withDexie';
 
-/** 親から渡されるデータ */
+// 親から渡されるデータ
 const props = defineProps<{ contentId: number }>();
-/** 入力用データ */
+// 入力用データ
 const inputs = reactive<ChatContent>(await store.contents.get(props.contentId) || {} as ChatContent);
+// 入力要素
+const content = ref<HTMLTextAreaElement | null>();
 
 const emit = defineEmits<{
   /** クローズ要求 */
@@ -87,4 +89,7 @@ function cancel() {
   emit('close');
 }
 
+onMounted(() => {
+  content.value?.focus();
+});
 </script>
