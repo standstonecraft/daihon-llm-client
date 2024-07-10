@@ -19,7 +19,7 @@
         </v-btn>
       </div>
       <v-divider class="border-opacity-50 mt-2"></v-divider>
-      <div class="flex-1-1-100 overflow-y-scroll pl-2 pr-1">
+      <div class="flex-1-1-100 overflow-y-auto pl-2 pr-1">
         <v-tooltip v-for="chat in chats" :key="chat.id" location="end center" origin="top start">
           <template v-slot:activator="{ props }">
             <!-- chat sheet -->
