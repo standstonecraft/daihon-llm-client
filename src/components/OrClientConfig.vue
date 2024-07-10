@@ -66,18 +66,16 @@ function deleteProfile() {
 function resetCommonPrompt() {
   commonPrompt.value =
     `常に以下の書式に従って回答してください。
-<intro>
+<llm_intro>
 {前置きがある場合はその文章}
-</intro>
-<thinking>
-{段階的な思考を行う場合はその文章}
-</thinking>
-<answer>
+{段階的な思考を行う場合はその過程}
+</llm_intro>
+<llm_answer>
 {最終的な回答}
-</answer>
-<outro>
+</llm_answer>
+<llm_outro>
 {補足や注意事項がある場合はその文章}
-</outro>`;
+</llm_outro>`;
 }
 
 onMounted(() => {
