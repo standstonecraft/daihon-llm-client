@@ -13,7 +13,6 @@
 </template>
 <script lang="ts" setup>
 import { computedAsync } from '@vueuse/core';
-import DOMPurify from 'dompurify';
 import { Marked } from 'marked';
 import markedCodeFormat from 'marked-code-format';
 
@@ -75,6 +74,5 @@ const marked = new Marked()
     markedCodeFormat({
       /* Prettier options */
     })
-  )
-const purify = DOMPurify(window);
+  );
 </script>
