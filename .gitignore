@@ -22,3 +22,4 @@ pnpm-debug.log*
 *.sw?
 src/components.d.ts
 src/auto-imports.d.ts
+bun.lockb
