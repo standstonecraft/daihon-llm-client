@@ -59,12 +59,6 @@ function getAgentName(content: ChatContent) {
       return agentName;
   }
 }
-/**
- * 1文字目を大文字に
- */
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 async function removeContent(contentId: number) {
   const becomeEmptyMessage = contents.value.length == 1;
