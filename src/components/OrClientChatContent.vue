@@ -41,7 +41,15 @@
     </v-btn>
   </div>
 </template>
-<style></style>
+<style>
+pre {
+  overflow-x: auto;
+}
+
+pre {
+  border: 1px solid gray;
+}
+</style>
 <script lang="ts" setup>
 import store from '@/ts/dataStore';
 import { ChatContent } from '@/ts/dataStore/chatContents';
