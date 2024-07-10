@@ -6,20 +6,30 @@
         <!-- カミシモ用スペーサー -->
       </div>
       <!-- card -->
-      <v-sheet class="flex-0-1" border style="max-width: calc(100% - 72px);">
-        <v-tabs v-model="tab" v-if="contents.length > 1">
-          <v-tab v-for="(cont, index) in contents" :value="index" density="compact">
-            {{ getAgentName(cont) }}
-          </v-tab>
-        </v-tabs>
+      <div class="flex-0-1 d-flex flex-column align-stretch" style="max-width: calc(100% - 72px);">
 
-        <v-tabs-window v-model="tab">
-          <v-tabs-window-item v-for="(cont, index) in contents" :value="`${index}`">
-            <OrClientChatContent v-bind="cont" @edit-content="(contentId) => openContentEditDialog(contentId)"
-              @remove-content="removeContent" />
-          </v-tabs-window-item>
-        </v-tabs-window>
-      </v-sheet>
+        <v-sheet border>
+          <v-tabs v-model="tab" v-if="contents.length > 1">
+            <v-tab v-for="(cont, index) in contents" :value="index" density="compact">
+              {{ getAgentName(cont) }}
+            </v-tab>
+          </v-tabs>
+
+          <v-tabs-window v-model="tab">
+            <v-tabs-window-item v-for="(cont, index) in contents" :value="`${index}`">
+              <OrClientChatContent v-bind="cont" @edit-content="(contentId) => openContentEditDialog(contentId)"
+                @remove-content="removeContent" />
+            </v-tabs-window-item>
+          </v-tabs-window>
+        </v-sheet>
+        <div v-if="contents.length > 1" class="d-flex justify-end">
+          <v-sheet border class="border-t-0">
+            <v-btn @click="synthesize" color="warning" variant="text" density="compact" v-tooltip="'Synthesize'">
+              <v-icon>mdi-gavel</v-icon>
+            </v-btn>
+          </v-sheet>
+        </div>
+      </div>
     </div>
 
     <!-- content edit dialog -->
@@ -68,6 +78,25 @@ async function removeContent(contentId: number) {
   }
 }
 
+function synthesize() {
+  store.messages.add({
+    chatId: props.chatId,
+    createdAt: new Date().toISOString(),
+  })
+    .then(newMessageId => store.contents.add({
+      chatId: props.chatId,
+      messageId: newMessageId,
+      agentId: -1,
+      role: "user",
+      content: `${contents.value.length}人の回答を統合して最終的な回答を出してください。`,
+      contentType: "text",
+      contentImage: "",
+      createdAt: new Date().toISOString(),
+      enabled: true,
+      invalid: []
+    }));
+}
+
 // content editor
 const editingContentId = ref(-1);
 const contentEditDialog = ref(false);
@@ -84,48 +113,4 @@ watch(newAddedContentId, () => {
     openContentEditDialog(newAddedContentId.value);
   }
 });
-/*
-export type ChatContent = {
-  id: number;
-  chatId: number;
-  messageId: number;
-  agentId: number;
-  content: ChatCompletionMessageParam;
-  createdAt: string;
-}
-
-export interface ChatCompletionSystemMessageParam {
-  content: string;
-  role: 'system';
-  name?: string;
-}
-
-export interface ChatCompletionAssistantMessageParam {
-  content?: string | null;
-  role: 'assistant';
-  name?: string;
-  function_call?: ChatCompletionAssistantMessageParam.FunctionCall | null;
-  tool_calls?: Array<ChatCompletionMessageToolCall>;
-}
-export interface ChatCompletionUserMessageParam {
-  content: string | Array<ChatCompletionContentPart>;
-  role: 'user';
-  name?: string;
-}
-export interface ChatCompletionContentPartText {
-  text: string;
-  type: 'text';
-}
-export interface ChatCompletionContentPartImage {
-  image_url: ChatCompletionContentPartImage.ImageURL;
-  type: 'image_url';
-}
-export namespace ChatCompletionContentPartImage {
-  export interface ImageURL {
-    url: string;
-    detail?: 'auto' | 'low' | 'high';
-  }
-}
-  */
-
 </script>
