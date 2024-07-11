@@ -4,28 +4,31 @@
       <!-- role select -->
       <v-select v-model="inputs.role" :items="roles" label="Role" density="comfortable" hide-details="auto"
         class="flex-0-1" style="min-width: 10rem;"></v-select>
+      <!-- contentType select -->
+      <v-switch v-show="inputs.role == 'user'" v-model="inputs.contentType"
+        :label="`${inputs.contentType == 'image_url' ? 'Image' : 'Text'}`" false-value="text" true-value="image_url"
+        hide-details></v-switch>
+      <div v-if="inputs.contentType == 'image_url'">
+        <div v-if="inputs.contentImage">
+          <v-img :width="60" cover :src="inputs.contentImage"></v-img>
+        </div>
+        <div v-else class="align-self-center">
+          <v-icon size="60">mdi-image-off-outline</v-icon>
+        </div>
+      </div>
       <!-- user / agent select -->
       <v-select v-model="inputs.agentId" :items="agentList" item-title="name" item-value="id"
-        v-show="inputs.role != 'user'" label="Agent" density="comfortable" hide-details="auto" class="flex-1-0">
+        v-show="inputs.role == 'assistant'" label="Agent" density="comfortable" hide-details="auto" class="flex-1-0">
         <template v-slot:item="{ props, item }">
           <v-list-item v-bind="props" :subtitle="item.raw.model"></v-list-item>
         </template>
       </v-select>
     </div>
-    <!-- contentType select -->
-    <v-select v-model="inputs.contentType" :items="contentTypes" label="ContentType" density="comfortable"
-      hide-details="auto" class="flex-0-1 mt-3" style="min-width: 10rem;"></v-select>
+    <!-- <v-select v-model="inputs.contentType" :items="contentTypes" label="ContentType" density="comfortable"
+      hide-details="auto" class="flex-0-1 mt-3" style="min-width: 10rem;"></v-select> -->
     <!-- content input -->
     <v-textarea ref="content" label="Content" v-model="inputs.content" @keyup.ctrl.enter="saveAndSend" rows="1"
       auto-grow hide-details="auto" density="comfortable" class="mt-3"></v-textarea>
-    <div v-if="inputs.contentType == 'image_url'">
-      <div v-if="inputs.contentImage">
-        <v-img :width="60" cover :src="inputs.contentImage"></v-img>
-      </div>
-      <div v-else class="align-self-center">
-        <v-icon size="60">mdi-image-off-outline</v-icon>
-      </div>
-    </div>
     <!-- tool area -->
     <div class="d-flex mt-3 align-center ga-2 flex-wrap">
       <!-- enabled switch -->
@@ -68,11 +71,10 @@ const emit = defineEmits<{
 const agents = useLiveQuery<Agent[]>(() => store.agents.getAll().toArray() || [], []);
 const agentList = computed(() => [{ id: -1, name: "You" } as Agent, ...agents.value ?? []]);
 const roles = ["user", "system", "assistant"];
-const contentTypes = ["text", "image"];
 
 /** 保存 */
 function save() {
-  if (inputs.role == "user") {
+  if (inputs.role != "assistant") {
     inputs.agentId = -1;
   }
   store.contents.update(inputs);

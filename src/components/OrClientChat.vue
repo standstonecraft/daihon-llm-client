@@ -15,9 +15,10 @@
         </div>
 
         <!-- add message button -->
-        <v-btn v-if="selectedChatId > -1" @click="addContent" ref="addMessageBtn" variant="elevated">
+        <v-btn v-if="selectedChatId > -1" @click="addContent" variant="elevated">
           <v-icon>$plus</v-icon>
         </v-btn>
+        <div ref="listBottom" style="height: 20px;"></div>
       </div>
     </div>
     <div v-else class="d-flex w-100 align-center justify-center">
@@ -61,10 +62,10 @@ async function addContent() {
   }, 100);
 }
 
-const addMessageBtn = ref<VBtn>();
+const listBottom = ref<HTMLElement>();
 watch(selectedChatId, () => {
   setTimeout(() => {
-    addMessageBtn.value?.$el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    listBottom.value?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, 50);
 });
 
@@ -73,7 +74,15 @@ const chatWaiting = ref(false);
 const sendChat = async (chatId: number, agentIds?: number[]) => {
   if (agentIds) {
     chatWaiting.value = true;
-    await requestOpenRouter(chatId, agentIds);
+    try {
+      await requestOpenRouter(chatId, agentIds);
+    } catch (error) {
+      if (error instanceof Error) {
+        showErrorDialog(error.message);
+      } else {
+        showErrorDialog("Unknown error");
+      }
+    }
     chatWaiting.value = false;
   } else {
     showErrorDialog("Please select an agent.");
