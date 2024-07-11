@@ -8,6 +8,17 @@
 // @use 'vuetify/settings' with (
 //   $color-pack: false
 // );
+
+@use "sass:meta";
+
+html[data-theme="light"] {
+  @include meta.load-css("highlight.js/styles/github");
+}
+
+html[data-theme="dark"] {
+  @include meta.load-css("highlight.js/styles/github-dark");
+}
+
 * {
   scrollbar-width: thin;
 }

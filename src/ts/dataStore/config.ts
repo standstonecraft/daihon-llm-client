@@ -12,23 +12,28 @@ export type Config = {
 }
 const CONFIG_ID = 0;
 
-const configStore = (db: DbType) => ({
-  /**
-   * 設定を取得します。
-   * @returns APIキー
-   */
-  get: async () => await db.config.get(CONFIG_ID) ?? {
+
+async function get(db: DbType) {
+  return await db.config.get(CONFIG_ID) ?? {
     id: 0,
     apiKey: "",
     commonPrompt: "",
     darkTheme: true,
     streaming: false,
-  },
+  };
+}
+
+const configStore = (db: DbType) => ({
+  /**
+   * 設定を取得します。
+   * @returns APIキー
+   */
+  get: async () => await get(db),
 
   /**
    * 設定をデータベースに保存します。
    *
    */
-  set: (config: Config) => db.config.put(config),
+  update: (cfg: Partial<Config>) => get(db).then(c => db.config.put({ ...c, ...cfg })),
 })
 export default configStore;

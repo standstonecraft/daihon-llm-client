@@ -45,18 +45,12 @@ import store from '@/ts/dataStore'
 
 const apiKey = ref<string | undefined>("");
 watch(apiKey, (newApiKey) => {
-  store.config.get().then(c => {
-    c.apiKey = newApiKey || "";
-    store.config.set(c);
-  })
+  store.config.update({ apiKey: newApiKey || "" });
 });
 
 const commonPrompt = ref<string | undefined>("");
 watch(commonPrompt, (newPrompt) => {
-  store.config.get().then(c => {
-    c.commonPrompt = newPrompt || "";
-    store.config.set(c);
-  })
+  store.config.update({ commonPrompt: newPrompt || "" });
 });
 
 function deleteProfile() {

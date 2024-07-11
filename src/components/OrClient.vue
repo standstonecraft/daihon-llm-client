@@ -83,13 +83,11 @@ function openOpenRouter() {
 }
 
 const setTheme = (dark: boolean) => {
+  const darkLight = dark ? 'dark' : 'light';
   isDarkTheme.value = dark;
-  theme.global.name.value = dark ? 'dark' : 'light'
-  store.config.get()
-    .then(c => {
-      c.darkTheme = dark;
-      store.config.set(c);
-    })
+  theme.global.name.value = darkLight;
+  store.config.update({ darkTheme: dark });
+  document.getElementsByTagName("html")[0].setAttribute("data-theme", darkLight);
 }
 
 onBeforeMount(async () => {

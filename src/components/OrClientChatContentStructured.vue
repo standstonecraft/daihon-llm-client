@@ -17,8 +17,28 @@
 </template>
 <script lang="ts" setup>
 import { computedAsync } from '@vueuse/core';
+import DOMPurify from 'dompurify';
 import { Marked } from 'marked';
+import { markedHighlight } from "marked-highlight";
+import hljs from 'highlight.js';
 import markedCodeFormat from 'marked-code-format';
+
+// sanitize
+const purify = DOMPurify(window);
+const marked = new Marked()
+  .use({ gfm: true })
+  .use(
+    markedCodeFormat({
+      /* Prettier options */
+    })
+  )
+  .use(markedHighlight({
+    langPrefix: 'hljs language-',
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    }
+  }));
 
 const props = defineProps({
   rawContent: { type: String, required: true }
@@ -48,9 +68,9 @@ const parseResponse = async () => {
   let remaining = props.rawContent;
   for (const obj of subContents) {
     [obj.text, remaining] = extractAndRemove(remaining, new RegExp(`<llm_${obj.value}>(.*?)</llm_${obj.value}>`, 's'));
-    obj.text = (await marked.parse(obj.text)).trim();
+    obj.text = purify.sanitize(await marked.parse(obj.text)).trim();
   }
-  remaining = (await marked.parse(remaining)).trim();
+  remaining = purify.sanitize(await marked.parse(remaining)).trim();
   subContents = subContents.filter(x => x.text);
   const availables = subContents.map(x => x.value);
   const opened = priorTagNames.filter(p => availables.includes(p));
@@ -78,6 +98,7 @@ watch(structured, () => {
  */
 function extractAndRemove(text: string, pattern: RegExp): [string, string] {
   const match = text.match(pattern);
+
   if (match) {
     const extracted = match.length > 1 ? match[1] : match[0];
     const remaining = text.replace(pattern, '');
@@ -86,11 +107,4 @@ function extractAndRemove(text: string, pattern: RegExp): [string, string] {
   return ['', text];
 }
 
-// sanitize
-const marked = new Marked()
-  .use(
-    markedCodeFormat({
-      /* Prettier options */
-    })
-  );
 </script>
