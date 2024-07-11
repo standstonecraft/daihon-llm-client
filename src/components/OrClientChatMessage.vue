@@ -9,12 +9,22 @@
       <div class="flex-0-1 d-flex flex-column align-stretch" style="max-width: calc(100% - 72px);">
 
         <v-sheet border>
-          <v-tabs v-model="tab" v-if="contents.length > 1">
-            <v-tab v-for="(cont, index) in contents" :value="index" density="compact">
-              {{ getAgentName(cont) }}
-            </v-tab>
-          </v-tabs>
-
+          <template v-if="contents.length > 1">
+            <!-- buttons -->
+            <div class="d-flex justify-end ga-4 px-2 pt-2 border-b-1">
+              <v-btn icon="mdi-gavel" @click="synthesize" color="warning" variant="text" density="compact"
+                v-tooltip="'Synthesize'">
+              </v-btn>
+              <v-btn icon="mdi-close" @click="removeMessage" variant="text" density="compact" v-tooltip="'Delete All'">
+              </v-btn>
+            </div>
+            <!-- tab -->
+            <v-tabs v-model="tab">
+              <v-tab v-for="(cont, index) in contents" :value="index" density="compact">
+                {{ getAgentName(cont) }}
+              </v-tab>
+            </v-tabs>
+          </template>
           <v-tabs-window v-model="tab">
             <v-tabs-window-item v-for="(cont, index) in contents" :value="`${index}`">
               <OrClientChatContent v-bind="cont" @edit-content="(contentId) => openContentEditDialog(contentId)"
@@ -22,13 +32,6 @@
             </v-tabs-window-item>
           </v-tabs-window>
         </v-sheet>
-        <div v-if="contents.length > 1" class="d-flex justify-end">
-          <v-sheet border class="border-t-0">
-            <v-btn @click="synthesize" color="warning" variant="text" density="compact" v-tooltip="'Synthesize'">
-              <v-icon>mdi-gavel</v-icon>
-            </v-btn>
-          </v-sheet>
-        </div>
       </div>
     </div>
 
@@ -48,7 +51,7 @@ import { ChatContent } from '@/ts/dataStore/chatContents';
 const newAddedContentId = defineModel<number>({ required: true });
 const props = defineProps<{ chatId: number, messageId: number, agentIds: number[] | undefined }>();
 const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
-const tab = ref("0");
+const tab = ref(0);
 
 const computedMessageId = computed(() => props.messageId);
 const contents = useLiveQuery<ChatContent[]>(
@@ -76,6 +79,12 @@ async function removeContent(contentId: number) {
   if (becomeEmptyMessage) {
     await store.messages.remove(props.messageId);
   }
+  tab.value = 0;
+}
+
+function removeMessage() {
+  store.messages.remove(props.messageId);
+  [...contents.value].forEach(content => store.contents.remove(content.id));
 }
 
 function synthesize() {
