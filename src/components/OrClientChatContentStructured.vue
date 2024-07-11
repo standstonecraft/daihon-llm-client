@@ -79,7 +79,7 @@ watch(structured, () => {
 function extractAndRemove(text: string, pattern: RegExp): [string, string] {
   const match = text.match(pattern);
   if (match) {
-    const extracted = match[0];
+    const extracted = match.length > 1 ? match[1] : match[0];
     const remaining = text.replace(pattern, '');
     return [extracted, remaining];
   }
