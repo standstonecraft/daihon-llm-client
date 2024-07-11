@@ -21,13 +21,17 @@ import store from '@/ts/dataStore';
 import useLiveQuery from '@/ts/withDexie';
 
 const props = defineProps<{ chatId: number }>();
+/** エージェント選択 */
 const agentIds = defineModel<number[]>();
+/** エージェントリスト v-selectに最適な形にマッピング */
 const agents = useLiveQuery(() => store.agents.getAll().toArray()
   .then(ags => ags.map(a => ({ title: a.name, value: a.id, subtitle: a.model }))) || [], []);
 const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
+/** チャットを送信する */
 const chatWaiting = inject("chatWaiting", ref(false));
-
+/** チャットタイトル 初期値はDBから取得 */
 const chatTitle = ref<string>((await store.chats.get(props.chatId))?.title || "");
+/** チャットタイトルが入力されたらDBに書き込む */
 watch(chatTitle, () => store.chats.get(props.chatId)
   .then(chat => chat && store.chats.update({ ...chat, title: chatTitle.value || "no title" })));
 </script>
