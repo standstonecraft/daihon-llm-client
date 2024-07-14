@@ -6,7 +6,8 @@
     <div v-if="selectedChatId !== -1" class="fill-height w-100 d-flex flex-column justify-end"
       style="max-width: calc(100% - 250px);">
       <!-- tools -->
-      <OrClientChatToolbar :chat-id="selectedChatId" v-model="selectedAgentIds" class="flex-0-0" />
+      <OrClientChatToolbar :chat-id="selectedChatId" v-model="selectedAgentIds" class="flex-0-0"
+        v-bind:chat-waiting="chatWaiting" />
       <v-divider></v-divider>
       <div class="d-flex flex-column ga-3 overflow-y-auto pa-3 flex-1-1">
         <div v-for="message in messages" :key="message.id">
@@ -26,14 +27,34 @@
     </div>
   </div>
 </template>
-<script lang="ts" setup>
-const selectedChatId = ref(-1);
+<script lang="ts">
 import store from '@/ts/dataStore';
 import { ChatMessage } from '@/ts/dataStore/chatMessages';
 import useLiveQuery from '@/ts/withDexie';
 import OrClientChatMessage from './OrClientChatMessage.vue';
 import { VBtn } from 'vuetify/components';
 import { requestOpenRouter } from '@/ts/llm';
+import { showErrorDialogKey } from './OrClient.vue';
+
+/** チャットを送信する */
+export const sendChatKey: InjectionKey<(chatId: number, agentIds?: number[]) => Promise<void>> = Symbol()
+
+/**
+ * チャット待機開始
+ * @param color ローダーの色
+ */
+export const startChatWaitingKey: InjectionKey<(color: string | undefined) => void> = Symbol();
+/**
+ * チャット待機停止
+ */
+export const stopChatWaitingKey: InjectionKey<() => void> = Symbol();
+
+</script>
+<script lang="ts" setup>
+/** inject エラーメッセージ表示 */
+const showErrorDialog = inject(showErrorDialogKey) || (() => { throw new Error("showErrorDialogKey is not defined") });
+
+const selectedChatId = ref(-1);
 
 const messages = useLiveQuery<ChatMessage[]>(
   () => store.messages.getAll().where("chatId").equals(selectedChatId.value).toArray(), [selectedChatId]);
@@ -69,7 +90,6 @@ watch(selectedChatId, () => {
   }, 100);
 });
 
-const showErrorDialog = inject("showErrorDialog", (text: string) => { });
 const chatWaiting = ref<boolean | string>(false);
 const sendChat = async (chatId: number, agentIds?: number[]) => {
   if (agentIds) {
@@ -89,6 +109,13 @@ const sendChat = async (chatId: number, agentIds?: number[]) => {
   }
 
 };
-provide("sendChat", sendChat);
-provide("chatWaiting", chatWaiting);
+
+// provide
+provide(sendChatKey, sendChat);
+provide(startChatWaitingKey, (color: string | undefined) => {
+  chatWaiting.value = color || "primary";
+});
+provide(stopChatWaitingKey, () => {
+  chatWaiting.value = false;
+});
 </script>

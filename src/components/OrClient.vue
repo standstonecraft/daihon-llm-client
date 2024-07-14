@@ -64,10 +64,17 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from "vue";
+<script lang="ts">
 import { useTheme } from 'vuetify'
 import store from "@/ts/dataStore";
+
+/** エラーメッセージ表示 */
+export const showErrorDialogKey: InjectionKey<(text: string) => void> = Symbol()
+</script>
+<script setup lang="ts">
+
+// provide
+provide(showErrorDialogKey, showErrorDialog);
 
 // テーマ
 const theme = useTheme();
@@ -104,6 +111,4 @@ function showErrorDialog(text: string) {
   errorDialogText.value = text;
   dialog.value = true;
 }
-
-provide("showErrorDialog", showErrorDialog);
 </script>

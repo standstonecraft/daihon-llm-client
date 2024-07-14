@@ -31,10 +31,24 @@
 import store from '@/ts/dataStore';
 import useLiveQuery from '@/ts/withDexie';
 import { askChatTitle } from '@/ts/llm';
+import { sendChatKey, startChatWaitingKey, stopChatWaitingKey } from './OrClientChat.vue';
+import { showErrorDialogKey } from './OrClient.vue';
 
-const showErrorDialog = inject("showErrorDialog", (text: string) => { });
+/** inject エラーメッセージ表示 */
+const showErrorDialog = inject(showErrorDialogKey) || (() => { throw new Error("showErrorDialogKey is not defined") });
+/** inject チャット待機開始 */
+const startChatWaiting = inject(startChatWaitingKey, () => { throw new Error("startChatWaitingKey is not defined") });
+/** inject チャット待機停止 */
+const stopChatWaiting = inject(stopChatWaitingKey, () => { throw new Error("stopChatWaitingKey is not defined") });
+/** inject チャットを送信する */
+const sendChat = inject(sendChatKey) || (() => { throw new Error("sendChatKey is not defined") });
 
-const props = defineProps<{ chatId: number }>();
+const props = defineProps<{
+  /** チャットID */
+  chatId: number,
+  /** チャット待機中 stringなら待機中かつ色指定あり trueなら待機中かつ色はprimary */
+  chatWaiting: boolean | string
+}>();
 
 /** エージェント選択 */
 const agentIds = defineModel<number[]>({ required: true, default: [] });
@@ -58,13 +72,9 @@ function toggleSelectAllAgent() {
   }
 }
 
-/** チャットを送信する */
-const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
-/** チャットを送信中 */
-const chatWaiting: Ref<boolean | string> = inject("chatWaiting", ref(false));
 const waitingColor = computed(() => {
-  if (typeof chatWaiting.value === "string") {
-    return chatWaiting.value
+  if (typeof props.chatWaiting === "string") {
+    return props.chatWaiting
   } else {
     return "primary"
   }
@@ -74,17 +84,17 @@ const chatTitle = ref<string>((await store.chats.get(props.chatId))?.title || ""
 watch(props, async () => chatTitle.value = (await store.chats.get(props.chatId))?.title || "");
 /** チャットタイトルが入力されたらDBに書き込む */
 watch(chatTitle, () => store.chats.get(props.chatId)
-  .then(chat => chat && store.chats.update({ ...chat, title: chatTitle.value || "no title" })));
+  .then(chat => chat && store.chats.update(chat.id, { title: chatTitle.value || "no title" })));
 
 /** タイトルを提案する */
 const suggestTitle = () => {
   // make loader yellow
-  chatWaiting.value = "#ff0";
+  startChatWaiting("#ff0");
   askChatTitle(props.chatId)
-    .then(title => chatTitle.value = title)
+    .then(title => store.chats.update(props.chatId, { title }))
     .catch(error => showErrorDialog(error.message))
     .finally(() => {
-      chatWaiting.value = false;
+      stopChatWaiting();
     });
 }
 </script>

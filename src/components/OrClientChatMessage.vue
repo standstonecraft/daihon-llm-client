@@ -47,10 +47,13 @@ import useLiveQuery from '@/ts/withDexie';
 import store from '@/ts/dataStore';
 import { Agent } from '@/ts/dataStore/agents';
 import { ChatContent } from '@/ts/dataStore/chatContents';
+import { sendChatKey } from './OrClientChat.vue';
+
+/** inject チャットを送信する */
+const sendChat = inject(sendChatKey) || (() => { throw new Error("sendChatKey is not defined") });
 
 const newAddedContentId = defineModel<number>({ required: true });
 const props = defineProps<{ chatId: number, messageId: number, agentIds: number[] | undefined }>();
-const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
 const tab = ref(0);
 
 const computedMessageId = computed(() => props.messageId);
