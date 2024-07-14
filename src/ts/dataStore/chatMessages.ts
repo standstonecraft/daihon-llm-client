@@ -27,10 +27,5 @@ const messagesStore = (db: DbType) => ({
    * データベースから全てのメッセージを取得します。
    */
   getAll: () => db.messages,
-
-  /**
-   * データベースからメッセージを更新します。
-   */
-  update: (message: ChatMessage) => db.messages.update(message.id, message),
 });
 export default messagesStore;
