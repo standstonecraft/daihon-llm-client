@@ -8,6 +8,16 @@
     <!-- agent select -->
     <v-select v-model="agentIds" :items="agents" :item-props="true" multiple label="Agent" density="comfortable"
       hide-details="auto" style="max-width: 14rem;">
+      <template v-slot:prepend-item>
+        <v-list-item title="Select All" @click="toggleSelectAllAgent">
+          <template v-slot:prepend>
+            <v-checkbox-btn :indeterminate="someAgentSelected && !allAgentSelected"
+              :model-value="allAgentSelected"></v-checkbox-btn>
+          </template>
+        </v-list-item>
+
+        <v-divider class="mt-2"></v-divider>
+      </template>
     </v-select>
     <!-- send button -->
     <v-btn @click="sendChat(props.chatId, agentIds)" variant="elevated" size="x-large">
@@ -21,13 +31,32 @@ import store from '@/ts/dataStore';
 import useLiveQuery from '@/ts/withDexie';
 
 const props = defineProps<{ chatId: number }>();
+
 /** エージェント選択 */
-const agentIds = defineModel<number[]>();
+const agentIds = defineModel<number[]>({ required: true, default: [] });
 /** エージェントリスト v-selectに最適な形にマッピング */
 const agents = useLiveQuery(() => store.agents.getAll().toArray()
   .then(ags => ags.map(a => ({ title: a.name, value: a.id, subtitle: a.model }))) || [], []);
-const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
+/** 全エージェントが選択されている */
+const allAgentSelected = computed(() => {
+  return agentIds.value.length === agents.value.length
+});
+/** 一部のエージェントが選択されている */
+const someAgentSelected = computed(() => {
+  return agentIds.value.length > 0
+});
+/** エージェント全選択/解除 */
+function toggleSelectAllAgent() {
+  if (allAgentSelected.value) {
+    agentIds.value = [];
+  } else {
+    agentIds.value = agents.value.map(x => x.value);
+  }
+}
+
 /** チャットを送信する */
+const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
+/** チャットを送信中 */
 const chatWaiting = inject("chatWaiting", ref(false));
 /** チャットタイトル 初期値はDBから取得 */
 const chatTitle = ref<string>((await store.chats.get(props.chatId))?.title || "");
