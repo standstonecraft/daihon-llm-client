@@ -20,26 +20,25 @@
       </div>
       <v-divider class="border-opacity-50 mt-2"></v-divider>
       <div class="flex-1-1-100 overflow-y-auto pl-2 pr-1">
-        <v-tooltip v-for="chat in chats" :key="chat.id" location="end center" origin="top start">
-          <template v-slot:activator="{ props }">
-            <!-- chat sheet -->
-            <v-sheet @click="selectChat(chat.id)" :color="isSelected(chat.id) ? 'surface-select' : ''"
-              class="chat-sheet-item cursor-pointer d-flex flex-nowrap align-center pa-1" rounded>
-              <!-- title -->
-              <span v-bind="props" class="d-block text-truncate flex-1-1 py-1 me-auto">{{ chat.title }}</span>
-              <!-- delete button -->
-              <v-btn @click.stop="deleteChat(chat.id)" icon="$delete" size="x-small" variant="text"
-                class="chat-sheet-delete"></v-btn>
-            </v-sheet>
-          </template>
-          <!-- tooltip content -->
-          <p>Title: {{ chat.title }}</p>
-          <p>Agent: {{ chat.agentNames || 'N/A' }}</p>
-          <p>Created: {{ chat.createdAt }}</p>
-          <p>Updated: {{ chat.updatedAt }}</p>
-          <p>Last tokens: {{ chat.lastTokenCount?.input || 'N/A' }} + {{ chat.lastTokenCount?.output || 'N/A' }} = {{
-            chat.lastTokenCount?.total || 'N/A' }}</p>
-        </v-tooltip>
+        <!-- chat sheet -->
+        <v-sheet v-for="chat in chats" :key="chat.id" @click="selectChat(chat.id)"
+          :color="isSelected(chat.id) ? 'surface-select' : ''"
+          class="chat-sheet-item cursor-pointer d-flex flex-nowrap align-center pa-1" rounded>
+          <!-- title -->
+          <span class="d-block text-truncate flex-1-1 py-1 me-auto">{{ chat.title }}</span>
+          <!-- delete button -->
+          <v-btn @click.stop="deleteChat(chat.id)" icon="$delete" size="x-small" variant="text"
+            class="chat-sheet-delete"></v-btn>
+          <v-tooltip activator="parent" location="end center" origin="top start">
+            <!-- tooltip content -->
+            <p>Title: {{ chat.title }}</p>
+            <p>Agent: {{ chat.agentNames || 'N/A' }}</p>
+            <p>Created: {{ chat.createdAt }}</p>
+            <p>Updated: {{ chat.updatedAt }}</p>
+            <p>Last tokens: {{ chat.lastTokenCount?.input || 'N/A' }} + {{ chat.lastTokenCount?.output || 'N/A' }} = {{
+              chat.lastTokenCount?.total || 'N/A' }}</p>
+          </v-tooltip>
+        </v-sheet>
       </div>
     </div>
   </v-sheet>
