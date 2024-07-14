@@ -12,15 +12,16 @@ export type Config = {
 }
 const CONFIG_ID = 0;
 
-
+/** デフォルトの設定 */
+const defaultConfig: Config = {
+  id: 0,
+  apiKey: "",
+  commonPrompt: "",
+  darkTheme: true,
+  streaming: false,
+};
 async function get(db: DbType) {
-  return await db.config.get(CONFIG_ID) ?? {
-    id: 0,
-    apiKey: "",
-    commonPrompt: "",
-    darkTheme: true,
-    streaming: false,
-  };
+  return await db.config.get(CONFIG_ID) ?? defaultConfig;
 }
 
 const configStore = (db: DbType) => ({
