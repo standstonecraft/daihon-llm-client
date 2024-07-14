@@ -135,7 +135,7 @@ function createContentBase(chatId: number, messageId: number, agentId: number): 
   };
 }
 
-function contentToMessageParam(c: ChatContent, agentName: string): ChatCompletionMessageParam {
+function contentToMessageParam(c: ChatContent): ChatCompletionMessageParam {
   switch (c.role) {
     case 'system':
       const retSystem: ChatCompletionSystemMessageParam = {
