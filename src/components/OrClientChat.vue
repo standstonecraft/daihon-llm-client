@@ -66,7 +66,7 @@ const listBottom = ref<HTMLElement>();
 watch(selectedChatId, () => {
   setTimeout(() => {
     listBottom.value?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, 50);
+  }, 100);
 });
 
 const showErrorDialog = inject("showErrorDialog", (text: string) => { });
