@@ -70,7 +70,7 @@ watch(selectedChatId, () => {
 });
 
 const showErrorDialog = inject("showErrorDialog", (text: string) => { });
-const chatWaiting = ref(false);
+const chatWaiting = ref<boolean | string>(false);
 const sendChat = async (chatId: number, agentIds?: number[]) => {
   if (agentIds) {
     chatWaiting.value = true;

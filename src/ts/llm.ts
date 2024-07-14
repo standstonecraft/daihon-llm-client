@@ -170,7 +170,6 @@ function contentToMessageParam(c: ChatContent): ChatCompletionMessageParam {
   }
 }
 
-
 /**
  * Creates the parameter object for chat completion.
  * @param chatId The ID of the chat.
@@ -228,3 +227,61 @@ async function createParameter(chatId: number, agentId: number, commonPrompt: st
   } as const satisfies ChatCompletionCreateParamsNonStreaming;
 }
 
+const titleSuggestionPrompt = `この会話の短いタイトルを考えてください。
+いくつか候補をあげたあと、最も優れた1つを選び、下記の書式で回答してください：
+
+<llm_title>{タイトル}</llm_title>`;
+/**
+ * LLMにチャットのタイトルを考えてもらう
+ * @param chatId The ID of the chat.
+ * @returns The title of the chat.
+ */
+export async function askChatTitle(chatId: number) {
+  try {
+    // Get the configuration from the store
+    const config = await store.config.get();
+    // get all enabled contents with the given chat ID
+    const contents = await store.contents.getAll()
+      .where("chatId").equals(chatId).and(c => c.enabled).filter(c => c.role != 'system').toArray();
+    // if contents is empty
+    if (contents.length === 0) throw new Error('No content');
+    // convert to message param
+    const messages = contents.map(contentToMessageParam);
+    // add title suggestion prompt
+    messages.push({ role: "user", content: titleSuggestionPrompt });
+
+    // Create a new instance of OpenAI with the provided configuration
+    const openai = new OpenAI({
+      baseURL: "https://openrouter.ai/api/v1",
+      apiKey: config.apiKey,
+      defaultHeaders: {
+        "X-Title": "Daihon LLM Client", // App name
+      },
+      dangerouslyAllowBrowser: true,
+    });
+    const completionParam = {
+      messages,
+      model: config.titleSuggestionModel,
+    } as const satisfies ChatCompletionCreateParamsNonStreaming;
+    // request
+    const completion = await openai.chat.completions.create(completionParam);
+    // retrieve response
+    const resonse = completion.choices[0].message.content ?? '';
+    console.log(resonse);
+    // response is null
+    if (!resonse) throw new Error('No response');
+    // extract answer. answer is surrounded by <llm_title> and </llm_title>
+    const answer = resonse.match(/<llm_title>(.*?)<\/llm_title>/)?.[1] ?? '';
+    console.log(answer);
+    // format error 
+    if (!answer) throw new Error('Invalid response format. The model provided in config may not be suitable for this task.');
+    return answer;
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error) {
+      throw new Error(`Chat title suggestion failed: ${error.message}`);
+    } else {
+      throw new Error('Unknown error');
+    }
+  }
+}

@@ -9,6 +9,7 @@ export type Config = {
   commonPrompt: string;
   darkTheme?: boolean;
   streaming: boolean;
+  titleSuggestionModel: string;
 }
 const CONFIG_ID = 0;
 
@@ -19,6 +20,7 @@ const defaultConfig: Config = {
   commonPrompt: "",
   darkTheme: true,
   streaming: false,
+  titleSuggestionModel: "anthropic/claude-3-haiku",
 };
 async function get(db: DbType) {
   return await db.config.get(CONFIG_ID) ?? defaultConfig;

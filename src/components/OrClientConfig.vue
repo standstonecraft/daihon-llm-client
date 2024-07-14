@@ -22,6 +22,16 @@
     </div>
     <v-divider></v-divider>
     <div class="pa-4">
+      <h3>Chat Title Suggestion</h3>
+      <div class="pt-2 pl-4 d-flex flex-column ga-2">
+        <p>AI choose the title of the chat when you click the <v-icon>mdi-creation</v-icon> button in the chat title
+          field.</p>
+        <v-text-field v-model="titleSuggestionModel" label="Model Name" placeholder="gpt-3.5-turbo"
+          type="text"></v-text-field>
+      </div>
+    </div>
+    <v-divider></v-divider>
+    <div class="pa-4">
       <h3>Profile</h3>
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
         <div class="d-flex ga-4">
@@ -51,6 +61,11 @@ watch(apiKey, (newApiKey) => {
 const commonPrompt = ref<string | undefined>("");
 watch(commonPrompt, (newPrompt) => {
   store.config.update({ commonPrompt: newPrompt || "" });
+});
+
+const titleSuggestionModel = ref<string | undefined>("");
+watch(titleSuggestionModel, (newPrompt) => {
+  store.config.update({ titleSuggestionModel: newPrompt || "" });
 });
 
 function deleteProfile() {

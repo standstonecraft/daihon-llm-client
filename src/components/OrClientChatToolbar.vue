@@ -1,10 +1,11 @@
 <template>
   <div class="d-flex justify-end ga-2 align-center pa-3">
     <!-- loader -->
-    <v-progress-circular v-if="chatWaiting" color="primary" indeterminate class="me-auto"></v-progress-circular>
+    <v-progress-circular v-if="chatWaiting" :color="waitingColor" indeterminate class="me-auto"></v-progress-circular>
     <v-progress-circular v-if="!chatWaiting" color="primary" model-value="0" class="me-auto"></v-progress-circular>
     <!-- title input -->
-    <v-text-field v-model="chatTitle" label="Title" density="comfortable" hide-details="auto"></v-text-field>
+    <v-text-field v-model="chatTitle" label="Title" append-inner-icon="mdi-creation" @click:append-inner="suggestTitle"
+      density="comfortable" hide-details="auto"></v-text-field>
     <!-- agent select -->
     <v-select v-model="agentIds" :items="agents" :item-props="true" multiple label="Agent" density="comfortable"
       hide-details="auto" style="max-width: 14rem;">
@@ -29,6 +30,9 @@
 <script setup lang="ts">
 import store from '@/ts/dataStore';
 import useLiveQuery from '@/ts/withDexie';
+import { askChatTitle } from '@/ts/llm';
+
+const showErrorDialog = inject("showErrorDialog", (text: string) => { });
 
 const props = defineProps<{ chatId: number }>();
 
@@ -57,10 +61,30 @@ function toggleSelectAllAgent() {
 /** チャットを送信する */
 const sendChat = inject("sendChat", (chatId: number, agentIds?: number[]) => { });
 /** チャットを送信中 */
-const chatWaiting = inject("chatWaiting", ref(false));
+const chatWaiting: Ref<boolean | string> = inject("chatWaiting", ref(false));
+const waitingColor = computed(() => {
+  if (typeof chatWaiting.value === "string") {
+    return chatWaiting.value
+  } else {
+    return "primary"
+  }
+})
 /** チャットタイトル 初期値はDBから取得 */
 const chatTitle = ref<string>((await store.chats.get(props.chatId))?.title || "");
+watch(props, async () => chatTitle.value = (await store.chats.get(props.chatId))?.title || "");
 /** チャットタイトルが入力されたらDBに書き込む */
 watch(chatTitle, () => store.chats.get(props.chatId)
   .then(chat => chat && store.chats.update({ ...chat, title: chatTitle.value || "no title" })));
+
+/** タイトルを提案する */
+const suggestTitle = () => {
+  // make loader yellow
+  chatWaiting.value = "#ff0";
+  askChatTitle(props.chatId)
+    .then(title => chatTitle.value = title)
+    .catch(error => showErrorDialog(error.message))
+    .finally(() => {
+      chatWaiting.value = false;
+    });
+}
 </script>
