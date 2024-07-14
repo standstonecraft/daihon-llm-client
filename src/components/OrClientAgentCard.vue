@@ -75,7 +75,7 @@ const tempImage = ref("");
 
 const dialogOpen = ref(null);
 
-watch(inputs, ((n, _o) => store.agents.update(n)));
+watch(inputs, ((n, _o) => store.agents.update(n.id, n)));
 
 
 watch(dialogOpen, (newDialogOpen, oldDialogOpen) => {

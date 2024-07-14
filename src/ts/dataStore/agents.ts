@@ -1,3 +1,4 @@
+import { InsertType, UpdateSpec } from "dexie";
 import { type DbType } from "../dataStore";
 /**
  * エージェント
@@ -29,7 +30,7 @@ const agentsStore = (db: DbType) => ({
   /**
    * データベースからエージェントを更新します。
    */
-  update: (agent: Agent) => db.agents.update(agent.id, agent),
+  update: (agentId: number, updSpec: UpdateSpec<InsertType<Agent, "id">>) => db.agents.update(agentId, updSpec),
 
   /**
    * データベースからエージェントを削除します。

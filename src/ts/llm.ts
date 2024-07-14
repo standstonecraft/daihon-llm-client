@@ -101,8 +101,7 @@ export async function requestOpenRouterSingle(chatId: number, messageId: number,
       const chat = await store.chats.get(chatId);
       if (chat) {
         chat.updatedAt = new Date().toISOString();
-        await store.chats.update({
-          ...chat,
+        await store.chats.update(chatId, {
           updatedAt: new Date().toISOString(),
           lastTokenCount: {
             input: nonStreamingCompletion.usage?.prompt_tokens,
@@ -273,12 +272,10 @@ export async function askChatTitle(chatId: number) {
     const completion = await openai.chat.completions.create(completionParam);
     // retrieve response
     const resonse = completion.choices[0].message.content ?? '';
-    console.log(resonse);
     // response is null
     if (!resonse) throw new Error('No response');
     // extract answer. answer is surrounded by <llm_title> and </llm_title>
     const answer = resonse.match(/<llm_title>(.*?)<\/llm_title>/)?.[1] ?? '';
-    console.log(answer);
     // format error 
     if (!answer) throw new Error('Invalid response format. The model provided in config may not be suitable for this task.');
     return answer;

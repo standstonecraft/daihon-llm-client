@@ -1,3 +1,4 @@
+import { InsertType, UpdateSpec } from "dexie";
 import { type DbType } from "../dataStore";
 /**
  * 会話
@@ -43,7 +44,8 @@ const chatsStore = (db: DbType) => ({
   /**
    * データベースから会話を更新します。
    */
-  update: (chat: Chat) => db.chats.update(chat.id, chat),
+  update: (chatId: number, updSpec: UpdateSpec<InsertType<Chat, "id">>) =>
+    db.chats.update(chatId, { ...updSpec, updatedAt: new Date().toISOString() }),
 
   /**
    * データベースからすべての会話を取得します。
