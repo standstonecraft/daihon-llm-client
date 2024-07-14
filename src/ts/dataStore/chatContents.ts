@@ -58,7 +58,5 @@ const contentsStore = (db: DbType) => ({
    * データベースからコンテンツを更新します。
    */
   update: async (content: ChatContent) => await db.contents.update(content.id, { ...content, invalid: await validate(content, db) }),
-
-
 });
 export default contentsStore;
