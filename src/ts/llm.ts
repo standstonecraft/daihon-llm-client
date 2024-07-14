@@ -12,6 +12,11 @@ import { Stream } from "openai/streaming.mjs";
  * @throws Error if the configuration is not found.
  */
 export async function requestOpenRouter(chatId: number, agentIds: number[]) {
+  // Get the configuration from the store
+  const config = await store.config.get();
+  if (!config) {
+    throw new Error("Config not found");
+  }
   // Add a new message to the store with the current timestamp
   const messageId = await store.messages.add({ chatId, createdAt: new Date().toISOString() });
   await Promise.all(agentIds.map(agentId =>
@@ -19,33 +24,34 @@ export async function requestOpenRouter(chatId: number, agentIds: number[]) {
   ));
 }
 export async function requestOpenRouterSingle(chatId: number, messageId: number, agentId: number) {
-  // Get the configuration from the store
-  const config = await store.config.get();
-  if (!config) {
-    throw new Error("Config not found");
-  }
-
-  // Create a new instance of OpenAI with the provided configuration
-  const openai = new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey: config.apiKey,
-    defaultHeaders: {
-      "X-Title": "Daihon LLM Client", // App name
-    },
-    dangerouslyAllowBrowser: true,
-  });
 
   // Create the base content object with the chat ID, message ID, and agent ID
   const contentBase = createContentBase(chatId, messageId, agentId);
 
-  // Check if streaming is enabled in the configuration
-  const streaming = config.streaming;
-
-  // Create the completion parameter based on the streaming flag
-  const completionParam = await createParameter(chatId, agentId, config.commonPrompt, streaming);
-  console.trace(completionParam);
-
   try {
+    // Get the configuration from the store
+    const config = await store.config.get();
+    if (!config) {
+      throw new Error("Config not found");
+    }
+
+    // Create a new instance of OpenAI with the provided configuration
+    const openai = new OpenAI({
+      baseURL: "https://openrouter.ai/api/v1",
+      apiKey: config.apiKey,
+      defaultHeaders: {
+        "X-Title": "Daihon LLM Client", // App name
+      },
+      dangerouslyAllowBrowser: true,
+    });
+
+    // Check if streaming is enabled in the configuration
+    const streaming = config.streaming;
+
+    // Create the completion parameter based on the streaming flag
+    const completionParam = await createParameter(chatId, agentId, config.commonPrompt, streaming);
+    console.trace(completionParam);
+
     // Send the completion request to OpenRouter API
     const completion = await openai.chat.completions.create(completionParam, streaming ? { stream: true } : undefined);
     console.trace(completion);
