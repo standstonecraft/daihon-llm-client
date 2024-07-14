@@ -212,7 +212,7 @@ async function createParameter(chatId: number, agentId: number, commonPrompt: st
     throw new Error("One or more content is invalid. Please check the messages.");
   }
   // Create the message parameters from the contents
-  const messages: ChatCompletionMessageParam[] = contents.map(c => contentToMessageParam(c, agent.name));
+  const messages: ChatCompletionMessageParam[] = contents.map(c => contentToMessageParam(c));
   // If streaming is enabled, return a streaming parameter object
   if (streaming) {
     return {
