@@ -3,7 +3,7 @@
     <div v-for="subContent in structured.subContents" :key="subContent.value">
       <!-- <v-btn :append-icon="listOpened.includes(subContent.value) ? '$collapse' : '$expand'" :text="subContent.title"
         @click="toggleList(subContent.value)" variant="text"></v-btn> -->
-      <div class="cursor-pointer" @click="toggleList(subContent.value)">
+      <div class="cursor-pointer" @click="toggleSection(subContent.value)">
         <span class="text-capitalize text-subtitle">{{ subContent.value }}</span>
         <v-icon>{{ listOpened.includes(subContent.value) ? '$collapse' : '$expand' }}</v-icon>
       </div>
@@ -22,23 +22,6 @@ import { Marked } from 'marked';
 import { markedHighlight } from "marked-highlight";
 import hljs from 'highlight.js';
 import markedCodeFormat from 'marked-code-format';
-
-// sanitize
-const purify = DOMPurify(window);
-const marked = new Marked()
-  .use({ gfm: true })
-  .use(
-    markedCodeFormat({
-      /* Prettier options */
-    })
-  )
-  .use(markedHighlight({
-    langPrefix: 'hljs language-',
-    highlight(code, lang, info) {
-      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-      return hljs.highlight(code, { language }).value;
-    }
-  }));
 
 const props = defineProps({
   rawContent: { type: String, required: true }
@@ -62,7 +45,7 @@ const priorTagNames = ["question", "conclusion"];
  *
  * @return {Promise<{ subContents: Array<{ value: string, text: string }>, remaining: string, opened: string[] }>} An object containing the parsed subContents, remaining content, and opened tag names.
  */
-const parseResponse = async () => {
+async function parseResponse() {
   if (!props.rawContent) return { ...defaultStructured };
   let subContents = responseTagNames.map(x => ({ value: x, text: "" }));
   let remaining = props.rawContent;
@@ -76,20 +59,7 @@ const parseResponse = async () => {
   const opened = priorTagNames.filter(p => availables.includes(p));
   const ret = { subContents, remaining, opened };
   return ret;
-};
-const structured = computedAsync<StructuredType>(parseResponse, { ...defaultStructured }, { lazy: true });
-
-const listOpened = ref<string[]>([]);
-function toggleList(value: string) {
-  if (listOpened.value.includes(value)) {
-    listOpened.value = listOpened.value.filter(x => x !== value);
-  } else {
-    listOpened.value.push(value);
-  }
 }
-watch(structured, () => {
-  listOpened.value = priorTagNames.filter(x => structured.value.subContents.some(y => y.value === x));
-})
 /**
  * retrieve and remove matched text
  * @param text target text
@@ -106,5 +76,41 @@ function extractAndRemove(text: string, pattern: RegExp): [string, string] {
   }
   return ['', text];
 }
+const structured = computedAsync<StructuredType>(parseResponse, { ...defaultStructured }, { lazy: true });
+watch(structured, () => {
+  listOpened.value = priorTagNames.filter(x => structured.value.subContents.some(y => y.value === x));
+})
 
+/*
+ * セクションの開閉
+ */
+/** 開かれているセクション */
+const listOpened = ref<string[]>([]);
+/** セクションの開閉 */
+function toggleSection(value: string) {
+  if (listOpened.value.includes(value)) {
+    listOpened.value = listOpened.value.filter(x => x !== value);
+  } else {
+    listOpened.value.push(value);
+  }
+}
+
+/*
+ * sanitize
+ */
+const purify = DOMPurify(window);
+const marked = new Marked()
+  .use({ gfm: true })
+  .use(
+    markedCodeFormat({
+      /* Prettier options */
+    })
+  )
+  .use(markedHighlight({
+    langPrefix: 'hljs language-',
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    }
+  }));
 </script>

@@ -52,7 +52,6 @@ import { sendChatKey } from './OrClientChat.vue';
 /** inject チャットを送信する */
 const sendChat = inject(sendChatKey) || (() => { throw new Error("sendChatKey is not defined") });
 
-const newAddedContentId = defineModel<number>({ required: true });
 const props = defineProps<{ chatId: number, messageId: number, agentIds: number[] | undefined }>();
 const tab = ref(0);
 
@@ -61,8 +60,10 @@ const contents = useLiveQuery<ChatContent[]>(
   () => store.contents.getAll().where("messageId").equals(computedMessageId.value).toArray() || [], [computedMessageId]);
 
 const isUser = computed(() => contents.value[0]?.role == "user");
-const agents = useLiveQuery<Agent[]>(() => store.agents.getAll().toArray() || [], []);
-const agentDic = computed(() => new Map(agents.value?.map(agent => [agent.id, agent]) ?? []));
+
+const agentDic = useLiveQuery<Map<number, Agent>>(() =>
+  store.agents.getAll().toArray().then(arr =>
+    new Map<number, Agent>(arr.map(agent => [agent.id, agent]) ?? [])), []);
 /**
  * エージェント名を取得
  */
@@ -76,6 +77,7 @@ function getAgentName(content: ChatContent) {
   }
 }
 
+/** コンテンツを削除する */
 async function removeContent(contentId: number) {
   const becomeEmptyMessage = contents.value.length == 1;
   await store.contents.remove(contentId);
@@ -84,12 +86,15 @@ async function removeContent(contentId: number) {
   }
   tab.value = 0;
 }
-
+/** メッセージを削除する */
 function removeMessage() {
   store.messages.remove(props.messageId);
   [...contents.value].forEach(content => store.contents.remove(content.id));
 }
 
+/**
+ * 意見集約を指示するメッセージを追加する
+ */
 function synthesize() {
   store.messages.add({
     chatId: props.chatId,
@@ -109,17 +114,30 @@ function synthesize() {
     }));
 }
 
-// content editor
+/*
+ * エディタの開閉
+ */
+/** 編集中コンテンツID */
 const editingContentId = ref(-1);
+/** エディタの開閉 */
 const contentEditDialog = ref(false);
+/** エディタを開く */
 function openContentEditDialog(contentId: number) {
   contentEditDialog.value = true;
   editingContentId.value = contentId;
 }
+/** エディタを閉じる */
 function closeContentEditDialog() {
   contentEditDialog.value = false;
   editingContentId.value = -1;
 }
+
+/*
+ * 追加されたコンテンツ エディタ自動オープン用
+ */
+/** 追加されたコンテンツのID 編集ダイアログを自動で開く用 */
+const newAddedContentId = defineModel<number>({ required: true });
+/* 追加された */
 watch(newAddedContentId, () => {
   if (contents.value && newAddedContentId.value == contents.value[0]?.id) {
     openContentEditDialog(newAddedContentId.value);

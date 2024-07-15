@@ -59,13 +59,18 @@ import store from "@/ts/dataStore";
 import { Chat } from "@/ts/dataStore/chats";
 import { liveQuery } from "dexie";
 
-const emit = defineEmits(["chatSelected"]);
+const emit = defineEmits<{
+  /** チャットが選択された */
+  chatSelected: [id: number]
+}>();
 
 const collapsed = ref(false);
-const selectedChatId = defineModel<number>({ required: true });
 
 const chats = useObservable(liveQuery(() => store.chats.getAll().orderBy("id").reverse().toArray()) as any) as Ref<Chat[]>;
 
+/**
+ * チャットを追加する
+ */
 const addChat = async () => {
   const newChatId = await store.chats.add({
     // id: (auto increment),
@@ -80,14 +85,22 @@ const addChat = async () => {
   selectChat(newChatId);
 }
 
+/*
+ * chat select
+ */
+/** 選択されたチャットID */
+const selectedChatId = defineModel<number>({ required: true });
+/** チャットを削除 */
 async function deleteChat(id: number) {
   selectedChatId.value = -1;
   store.chats.remove(id);
 }
+/** チャットを選択 */
 function selectChat(id: number) {
   selectedChatId.value = id;
   emit('chatSelected', id);
 }
+/** 指定されたIDのチャットを選択しているか */
 function isSelected(id: number) {
   return selectedChatId.value === id;
 }

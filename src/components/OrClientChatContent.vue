@@ -68,6 +68,9 @@ const emit = defineEmits<{
   removeContent: [contentId: number]
 }>();
 
+/* 
+ * エージェント
+ */
 const agent = asyncComputed(async () => await store.agents.get(props.agentId));
 const agentName = computed(() =>
   props.agentId == -1 ? 'You' : agent.value?.name || 'Unknown');

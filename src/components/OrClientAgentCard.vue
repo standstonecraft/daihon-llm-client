@@ -5,7 +5,7 @@
       <v-row class="h-100">
         <!-- 画像列 -->
         <v-col cols="12" sm="2" class="h-100">
-          <v-dialog v-model="dialogOpen">
+          <v-dialog v-model="imageDialog">
             <template v-slot:activator="{ props: activatorProps }">
               <div v-bind="activatorProps">
                 <div v-if="inputs.image">
@@ -69,16 +69,20 @@ import store from "@/ts/dataStore";
 import { type Agent } from "@/ts/dataStore/agents";
 
 const props = defineProps<Agent>();
+
+/*
+ * 入力要素
+ * 更新されたらデータベースに反映→propsに反映される
+ */
 const inputs = reactive<Agent>({ ...props });
-
-const tempImage = ref("");
-
-const dialogOpen = ref(null);
-
 watch(inputs, ((n, _o) => store.agents.update(n.id, n)));
 
-
-watch(dialogOpen, (newDialogOpen, oldDialogOpen) => {
+/*
+ * 画像URL入力ダイアログ
+ */
+const imageDialog = ref(null);
+const tempImage = ref("");
+watch(imageDialog, (newDialogOpen, oldDialogOpen) => {
   if (newDialogOpen) {
     tempImage.value = ""
   } else if (oldDialogOpen != null && !newDialogOpen) {

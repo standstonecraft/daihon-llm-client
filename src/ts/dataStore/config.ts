@@ -28,7 +28,7 @@ async function get(db: DbType) {
 
 const configStore = (db: DbType) => ({
   /**
-   * 設定を取得します。
+   * 設定を取得します。取得できない内容はデフォルト値を返します。
    * @returns APIキー
    */
   get: async () => await get(db),

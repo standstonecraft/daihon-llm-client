@@ -19,6 +19,7 @@
         <v-btn v-if="selectedChatId > -1" @click="addContent" variant="elevated">
           <v-icon>$plus</v-icon>
         </v-btn>
+        <!-- 最下部要素 スクロール用 見切れ防止のため高さにゆとり -->
         <div ref="listBottom" style="height: 20px;"></div>
       </div>
     </div>
@@ -36,31 +37,45 @@ import { VBtn } from 'vuetify/components';
 import { requestOpenRouter } from '@/ts/llm';
 import { showErrorDialogKey } from './OrClient.vue';
 
-/** チャットを送信する */
+/** InjectionKey チャットを送信する */
 export const sendChatKey: InjectionKey<(chatId: number, agentIds?: number[]) => Promise<void>> = Symbol()
 
 /**
- * チャット待機開始
+ * InjectionKey チャット待機開始
  * @param color ローダーの色
  */
 export const startChatWaitingKey: InjectionKey<(color: string | undefined) => void> = Symbol();
 /**
- * チャット待機停止
+ * InjectionKey チャット待機停止
  */
 export const stopChatWaitingKey: InjectionKey<() => void> = Symbol();
 
 </script>
 <script lang="ts" setup>
+
 /** inject エラーメッセージ表示 */
 const showErrorDialog = inject(showErrorDialogKey) || (() => { throw new Error("showErrorDialogKey is not defined") });
 
-const selectedChatId = ref(-1);
+// provide
+provide(sendChatKey, sendChat);
+provide(startChatWaitingKey, startChatWaiting);
+provide(stopChatWaitingKey, stopChatWaiting);
 
+/** チャット選択 */
+const selectedChatId = ref(-1);
+/** メッセージ */
 const messages = useLiveQuery<ChatMessage[]>(
   () => store.messages.getAll().where("chatId").equals(selectedChatId.value).toArray(), [selectedChatId]);
-const newAddedContentId = ref(-1);
 const selectedAgentIds = ref<number[]>();
 
+/*
+ * 新規メッセージ追加
+ */
+/** 追加されたコンテンツのID メッセージコンポーネントで編集ダイアログを自動で開く用 */
+const newAddedContentId = ref(-1);
+/**
+ * 新規メッセージ追加
+ */
 async function addContent() {
   const newMessageId = await store.messages.add({
     chatId: selectedChatId.value,
@@ -83,6 +98,10 @@ async function addContent() {
   }, 100);
 }
 
+/*
+ * チャット選択時にメッセージリスト最下部へスクロール
+ */
+/** 最下部要素 */
 const listBottom = ref<HTMLElement>();
 watch(selectedChatId, () => {
   setTimeout(() => {
@@ -90,8 +109,13 @@ watch(selectedChatId, () => {
   }, 100);
 });
 
+/*
+ * チャット送信と待機中状態
+ */
+/** チャット待機中状態 */
 const chatWaiting = ref<boolean | string>(false);
-const sendChat = async (chatId: number, agentIds?: number[]) => {
+/** チャット送信 */
+async function sendChat(chatId: number, agentIds?: number[]) {
   if (agentIds) {
     chatWaiting.value = true;
     try {
@@ -107,15 +131,17 @@ const sendChat = async (chatId: number, agentIds?: number[]) => {
   } else {
     showErrorDialog("Please select an agent.");
   }
-
-};
-
-// provide
-provide(sendChatKey, sendChat);
-provide(startChatWaitingKey, (color: string | undefined) => {
-  chatWaiting.value = color || "primary";
-});
-provide(stopChatWaitingKey, () => {
-  chatWaiting.value = false;
-});
+}
+/** チャット待機開始 */
+function startChatWaiting(): (color: string | undefined) => void {
+  return (color: string | undefined) => {
+    chatWaiting.value = color || "primary";
+  };
+}
+/** チャット待機停止 */
+function stopChatWaiting(): () => void {
+  return () => {
+    chatWaiting.value = false;
+  };
+}
 </script>

@@ -15,6 +15,9 @@ import useLiveQuery from "@/ts/withDexie";
 
 const agents = useLiveQuery<Agent[]>(() => store.agents.getAll().toArray() || [], []);
 
+/**
+ * 新しいエージェントを追加
+ */
 function addAgent() {
   store.agents.add({
     // id: (auto increment),

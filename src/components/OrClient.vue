@@ -48,7 +48,7 @@
     </v-tabs-window>
 
     <!-- dialog -->
-    <v-dialog v-model="dialog" width="auto" @close="dialog = false; errorDialogText = ''">
+    <v-dialog v-model="errorDialog" width="auto" @close="errorDialog = false; errorDialogText = ''">
       <v-card max-width="400" :text="errorDialogText">
         <template v-slot:prepend>
           <v-icon color="error">$warning</v-icon>
@@ -57,7 +57,7 @@
           <span class="text-error" color="error">Error</span>
         </template>
         <template v-slot:actions>
-          <v-btn class="ms-auto" text="Ok" @click="dialog = false"></v-btn>
+          <v-btn class="ms-auto" text="Ok" @click="errorDialog = false"></v-btn>
         </template>
       </v-card>
     </v-dialog>
@@ -65,30 +65,31 @@
 </template>
 
 <script lang="ts">
-import { useTheme } from 'vuetify'
-import store from "@/ts/dataStore";
-
-/** エラーメッセージ表示 */
+/** InjectionKey エラーメッセージ表示 */
 export const showErrorDialogKey: InjectionKey<(text: string) => void> = Symbol()
 </script>
 <script setup lang="ts">
+import { useTheme } from 'vuetify'
+import store from "@/ts/dataStore";
 
 // provide
 provide(showErrorDialogKey, showErrorDialog);
 
-// テーマ
-const theme = useTheme();
-const isDarkTheme = ref(false);
-
 // 変数
 const tab = ref("tab");
-const dialog = ref(false);
-const errorDialogText = ref("");
 
+/**
+ * OpenRouter のウェブサイトを開く
+ */
 function openOpenRouter() {
   window.open("https://openrouter.ai/", "_blank");
 }
 
+/*
+ * テーマ
+ */
+const theme = useTheme();
+const isDarkTheme = ref(false);
 const setTheme = (dark: boolean) => {
   const darkLight = dark ? 'dark' : 'light';
   isDarkTheme.value = dark;
@@ -96,19 +97,27 @@ const setTheme = (dark: boolean) => {
   store.config.update({ darkTheme: dark });
   document.getElementsByTagName("html")[0].setAttribute("data-theme", darkLight);
 }
-
 onBeforeMount(async () => {
   // changeTheme を呼ぶので読込結果を反転する
   await store.config.get().then(c => {
     setTheme(c.darkTheme ?? false);
   });
 });
+
+/*
+ * loading div
+ */
 onMounted(() => {
   document.getElementById("loadingDiv")?.remove();
 });
 
+/*
+ * エラーメッセージ表示
+ */
+const errorDialog = ref(false);
+const errorDialogText = ref("");
 function showErrorDialog(text: string) {
   errorDialogText.value = text;
-  dialog.value = true;
+  errorDialog.value = true;
 }
 </script>

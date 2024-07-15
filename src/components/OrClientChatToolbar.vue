@@ -7,7 +7,7 @@
     <v-text-field v-model="chatTitle" label="Title" append-inner-icon="mdi-creation" @click:append-inner="suggestTitle"
       density="comfortable" hide-details="auto"></v-text-field>
     <!-- agent select -->
-    <v-select v-model="agentIds" :items="agents" :item-props="true" multiple label="Agent" density="comfortable"
+    <v-select v-model="selectedAgentIds" :items="agents" :item-props="true" multiple label="Agent" density="comfortable"
       hide-details="auto" style="max-width: 14rem;">
       <template v-slot:prepend-item>
         <v-list-item title="Select All" @click="toggleSelectAllAgent">
@@ -21,7 +21,7 @@
       </template>
     </v-select>
     <!-- send button -->
-    <v-btn @click="sendChat(props.chatId, agentIds)" variant="elevated" size="x-large">
+    <v-btn @click="sendChat(props.chatId, selectedAgentIds)" variant="elevated" size="x-large">
       <v-icon color="primary">mdi-send</v-icon>
     </v-btn>
   </div>
@@ -50,28 +50,32 @@ const props = defineProps<{
   chatWaiting: boolean | string
 }>();
 
-/** エージェント選択 */
-const agentIds = defineModel<number[]>({ required: true, default: [] });
+/* 
+ * エージェント選択
+ */
+/** 選択されたエージェントID */
+const selectedAgentIds = defineModel<number[]>({ required: true, default: [] });
 /** エージェントリスト v-selectに最適な形にマッピング */
 const agents = useLiveQuery(() => store.agents.getAll().toArray()
   .then(ags => ags.map(a => ({ title: a.name, value: a.id, subtitle: a.model }))) || [], []);
 /** 全エージェントが選択されている */
 const allAgentSelected = computed(() => {
-  return agentIds.value.length === agents.value.length
+  return selectedAgentIds.value.length === agents.value.length
 });
 /** 一部のエージェントが選択されている */
 const someAgentSelected = computed(() => {
-  return agentIds.value.length > 0
+  return selectedAgentIds.value.length > 0
 });
 /** エージェント全選択/解除 */
 function toggleSelectAllAgent() {
   if (allAgentSelected.value) {
-    agentIds.value = [];
+    selectedAgentIds.value = [];
   } else {
-    agentIds.value = agents.value.map(x => x.value);
+    selectedAgentIds.value = agents.value.map(x => x.value);
   }
 }
 
+/** チャット待機中の色 */
 const waitingColor = computed(() => {
   if (typeof props.chatWaiting === "string") {
     return props.chatWaiting
@@ -79,6 +83,10 @@ const waitingColor = computed(() => {
     return "primary"
   }
 })
+
+/* 
+ * チャットタイトル
+ */
 /** チャットタイトル 初期値はDBから取得 */
 const chatTitle = ref<string>((await store.chats.get(props.chatId))?.title || "");
 watch(props, async () => chatTitle.value = (await store.chats.get(props.chatId))?.title || "");

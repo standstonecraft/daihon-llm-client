@@ -4,7 +4,8 @@
     <div class="pa-4">
       <h3>API Key</h3>
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
-        <v-text-field v-model="apiKey" label="API Key" hint="Enter OpenRouter API key."></v-text-field>
+        <v-text-field v-model="apiKey" label="API Key" hint="Enter OpenRouter API key."
+          placeholder="xx-xx-xx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></v-text-field>
       </div>
     </div>
     <v-divider></v-divider>
@@ -26,7 +27,7 @@
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
         <p>AI choose the title of the chat when you click the <v-icon>mdi-creation</v-icon> button in the chat title
           field.</p>
-        <v-text-field v-model="titleSuggestionModel" label="Model Name" placeholder="gpt-3.5-turbo"
+        <v-text-field v-model="titleSuggestionModel" label="Model Name" placeholder="anthropic/claude-3-haiku"
           type="text"></v-text-field>
       </div>
     </div>
@@ -125,8 +126,9 @@ function resetCommonPrompt() {
 
 onMounted(() => {
   store.config.get().then(c => {
-    apiKey.value = c?.apiKey
-    commonPrompt.value = c?.commonPrompt
+    apiKey.value = c.apiKey;
+    commonPrompt.value = c.commonPrompt;
+    titleSuggestionModel.value = c.titleSuggestionModel;
   })
 })
 </script>
