@@ -1,6 +1,6 @@
 <template>
   <v-sheet class="d-flex flex-column pa-3">
-    <div class="d-flex ga-2 flex-wrap">
+    <div class="d-flex ga-2 flex-wrap align-center">
       <!-- role select -->
       <v-select v-model="inputs.role" :items="roles" label="Role" density="comfortable" hide-details="auto"
         class="flex-0-1" style="min-width: 10rem;"></v-select>
@@ -8,13 +8,9 @@
       <v-switch v-show="inputs.role == 'user'" v-model="inputs.contentType"
         :label="`${inputs.contentType == 'image_url' ? 'Image' : 'Text'}`" false-value="text" true-value="image_url"
         hide-details></v-switch>
+      <!-- image -->
       <div v-if="inputs.contentType == 'image_url'">
-        <div v-if="inputs.contentImage">
-          <v-img :width="60" cover :src="inputs.contentImage"></v-img>
-        </div>
-        <div v-else class="align-self-center">
-          <v-icon size="60">mdi-image-off-outline</v-icon>
-        </div>
+        <ImagePicker v-model="inputs.contentImage" v-bind:image-size="58"></ImagePicker>
       </div>
       <!-- user / agent select -->
       <v-select v-model="inputs.agentId" :items="agentList" item-title="name" item-value="id"
@@ -24,8 +20,6 @@
         </template>
       </v-select>
     </div>
-    <!-- <v-select v-model="inputs.contentType" :items="contentTypes" label="ContentType" density="comfortable"
-      hide-details="auto" class="flex-0-1 mt-3" style="min-width: 10rem;"></v-select> -->
     <!-- content input -->
     <v-textarea ref="content" label="Content" v-model="inputs.content" @keyup.ctrl.enter="saveAndSend" rows="1"
       auto-grow hide-details="auto" density="comfortable" class="mt-3"></v-textarea>

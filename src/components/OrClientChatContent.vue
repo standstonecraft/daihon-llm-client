@@ -6,10 +6,10 @@
     <!-- image -->
     <div v-if="props.contentType == 'image_url'">
       <div v-if="props.contentImage">
-        <v-img :width="60" cover :src="props.contentImage"></v-img>
+        <v-img :width="240" cover :src="props.contentImage"></v-img>
       </div>
       <div v-else class="align-self-center">
-        <v-icon size="60">mdi-image-off-outline</v-icon>
+        <v-icon size="240">mdi-image-off-outline</v-icon>
       </div>
     </div>
   </div>
