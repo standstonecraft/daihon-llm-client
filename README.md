@@ -1,4 +1,45 @@
-# Vuetify (Default)
+# Daihon LLM Client
+
+## Vue components dependencies
+
+```powershell
+$choices = (gci ./src/components *.vue | select -ExpandProperty BaseName) -join "|"
+$pattern ="<($choices)\W"
+gci ./src/components *.vue |
+%{
+  $file = $_.name
+  $list =$_ | Select-String -Pattern $pattern |
+      %{$_.Matches} |
+      %{$_.Groups[1]} |
+      %{[pscustomobject]@{file=$file;child=$_.Value}}
+  if($list.count -gt 0){$list}
+  else{[pscustomobject]@{file=$file;child=""}}
+}
+```
+
+| file                              | child                         |
+| --------------------------------- | ----------------------------- |
+| AppFooter.vue                     |                               |
+| ImagePicker.vue                   |                               |
+| OrClient.vue                      | OrClientChat                  |
+| OrClient.vue                      | OrClientAgentList             |
+| OrClient.vue                      | OrClientConfig                |
+| OrClientAgentCard.vue             |                               |
+| OrClientAgentList.vue             | OrClientAgentCard             |
+| OrClientChat.vue                  | OrClientChatSidebar           |
+| OrClientChat.vue                  | OrClientChatToolbar           |
+| OrClientChat.vue                  | OrClientChatMessage           |
+| OrClientChatContent.vue           | OrClientChatContentStructured |
+| OrClientChatContentEdit.vue       | ImagePicker                   |
+| OrClientChatContentStructured.vue |                               |
+| OrClientChatMessage.vue           | OrClientChatContent           |
+| OrClientChatMessage.vue           | OrClientChatContentEdit       |
+| OrClientChatSidebar.vue           |                               |
+| OrClientChatToolbar.vue           |                               |
+| OrClientConfig.vue                |                               |
+
+
+## Vuetify (Default)
 
 This is the official scaffolding tool for Vuetify, designed to give you a head start in building your new Vuetify application. It sets up a base template with all the necessary configurations and standard directory structure, enabling you to begin development without the hassle of setting up the project from scratch.
 
@@ -14,12 +55,12 @@ This is the official scaffolding tool for Vuetify, designed to give you a head s
 
 Set up your project using your preferred package manager. Use the corresponding command to install the dependencies:
 
-| Package Manager                                                | Command        |
-|---------------------------------------------------------------|----------------|
-| [yarn](https://yarnpkg.com/getting-started)                   | `yarn install` |
-| [npm](https://docs.npmjs.com/cli/v7/commands/npm-install)     | `npm install`  |
-| [pnpm](https://pnpm.io/installation)                          | `pnpm install` |
-| [bun](https://bun.sh/#getting-started)                        | `bun install`  |
+| Package Manager                                           | Command        |
+| --------------------------------------------------------- | -------------- |
+| [yarn](https://yarnpkg.com/getting-started)               | `yarn install` |
+| [npm](https://docs.npmjs.com/cli/v7/commands/npm-install) | `npm install`  |
+| [pnpm](https://pnpm.io/installation)                      | `pnpm install` |
+| [bun](https://bun.sh/#getting-started)                    | `bun install`  |
 
 After completing the installation, your environment is ready for Vuetify development.
 
