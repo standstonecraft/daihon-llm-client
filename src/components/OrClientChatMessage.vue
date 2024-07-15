@@ -9,6 +9,8 @@
       <div class="flex-0-1 d-flex flex-column align-stretch" style="max-width: calc(100% - 72px);">
 
         <v-sheet border>
+          <v-skeleton-loader v-if="contents.length == 0" type="table-heading, paragraph, actions"
+            min-width="300"></v-skeleton-loader>
           <template v-if="contents.length > 1">
             <!-- buttons -->
             <div class="d-flex justify-end ga-4 px-2 pt-2 border-b-1">
