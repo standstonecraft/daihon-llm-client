@@ -2,10 +2,16 @@
 
   <v-sheet border class="d-flex flex-column">
     <div class="pa-4">
-      <h3>API Key</h3>
+      <h3>API</h3>
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
-        <v-text-field v-model="apiKey" label="API Key" hint="Enter OpenRouter API key."
-          placeholder="xx-xx-xx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></v-text-field>
+        <p>The OpenRouter API key.</p>
+        <v-text-field v-model="apiKey" label="API Key"
+          placeholder="xx-xx-xx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          hide-details></v-text-field>
+      </div>
+      <div class="pt-2 pl-4 d-flex ga-4 align-center">
+        <span>Streaming: </span>
+        <v-switch v-model="streaming" :label="streaming ? 'ON' : 'OFF'" density="compact" hide-details></v-switch>
       </div>
     </div>
     <v-divider></v-divider>
@@ -15,7 +21,7 @@
         <p>The prompt that will be used at the top of each chat by all agents.</p>
         <v-textarea v-model="commonPrompt" label="Common Prompt"></v-textarea>
         <div>
-          <v-btn @click="resetCommonPrompt" prepend-icon="mdi-refresh" variant="text" color="error">
+          <v-btn @click="resetCommonPrompt" prepend-icon="mdi-refresh" variant="text" color="error" hide-details>
             RESET
           </v-btn>
         </div>
@@ -28,7 +34,7 @@
         <p>AI choose the title of the chat when you click the <v-icon>mdi-creation</v-icon> button in the chat title
           field.</p>
         <v-text-field v-model="titleSuggestionModel" label="Model Name" placeholder="anthropic/claude-3-haiku"
-          type="text"></v-text-field>
+          hide-details type="text"></v-text-field>
       </div>
     </div>
     <v-divider></v-divider>
@@ -67,6 +73,11 @@ watch(commonPrompt, (newPrompt) => {
 const titleSuggestionModel = ref<string | undefined>("");
 watch(titleSuggestionModel, (newPrompt) => {
   store.config.update({ titleSuggestionModel: newPrompt || "" });
+});
+
+const streaming = ref(false);
+watch(streaming, (newPrompt) => {
+  store.config.update({ streaming: newPrompt });
 });
 
 function deleteProfile() {
