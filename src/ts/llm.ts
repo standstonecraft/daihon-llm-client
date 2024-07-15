@@ -4,26 +4,22 @@ import { ChatCompletion, ChatCompletionAssistantMessageParam, ChatCompletionCrea
 import { ChatContent } from "./dataStore/chatContents";
 import { ChatCompletionStreamParams } from "openai/resources/beta/chat/completions.mjs";
 import { Stream } from "openai/streaming.mjs";
+import { deepParseJson } from "deep-parse-json"
 
 /**
- * Sends a request to OpenRouter API to generate a response for a given chat and agent.
- * @param chatId The ID of the chat.
- * @param agentIds The ID of the agent.
- * @throws Error if the configuration is not found.
+ * For errors, OpenRouter returns a JSON response with the following shape:
  */
-export async function requestOpenRouter(chatId: number, agentIds: number[]) {
-  // Get the configuration from the store
-  const config = await store.config.get();
-  if (!config) {
-    throw new Error("Config not found");
-  }
-  // Add a new message to the store with the current timestamp
-  const messageId = await store.messages.add({ chatId, createdAt: new Date().toISOString() });
-  await Promise.all(agentIds.map(agentId =>
-    requestOpenRouterSingle(chatId, messageId, agentId)
-  ));
-}
-export async function requestOpenRouterSingle(chatId: number, messageId: number, agentId: number) {
+type ErrorResponse = {
+  error: {
+    code: number;
+    message: string;
+    metadata?: Record<string, unknown>;
+  };
+};
+/**
+ * Sends a request to OpenRouter API to generate a response for a given chat and agent.
+ */
+export async function requestOpenRouter(chatId: number, messageId: number, agentId: number) {
 
   // Create the base content object with the chat ID, message ID, and agent ID
   const contentBase = createContentBase(chatId, messageId, agentId);
@@ -86,8 +82,15 @@ export async function requestOpenRouterSingle(chatId: number, messageId: number,
       }
     } else {
       // Handle non-streaming completion
+      if (Object.hasOwn(completion, "error")) {
+        // @ts-ignore
+        const err = completion as ErrorResponse;
+        const json = deepParseJson(err.error.message);
+        // throw new Error("```\n" + JSON.stringify(json, null, 2) + "\n```");
+        throw new Error(objectToMarkdown(json));
+      }
       const nonStreamingCompletion = completion as ChatCompletion;
-      for (const ch of nonStreamingCompletion.choices) {
+      for (const ch of (completion as ChatCompletion).choices) {
         // Add each choice to the store
         await store.contents.add({
           ...contentBase,
@@ -126,6 +129,29 @@ export async function requestOpenRouterSingle(chatId: number, messageId: number,
       throw error;
     }
   }
+}
+
+function objectToMarkdown(obj: object, level = 1) {
+  let markdown = '';
+
+  for (const [key, value] of Object.entries(obj)) {
+    const heading = '#'.repeat(level);
+    markdown += `${heading} ${key}\n\n`;
+
+    if (typeof value === 'object' && value !== null) {
+      if (Array.isArray(value)) {
+        value.forEach(item => {
+          markdown += `- ${item}\n`;
+        });
+      } else {
+        markdown += objectToMarkdown(value, level + 1);
+      }
+    } else {
+      markdown += `${value}\n\n`;
+    }
+  }
+
+  return markdown;
 }
 
 function createContentBase(chatId: number, messageId: number, agentId: number): Omit<ChatContent, "id" | "createdAt" | "content" | "enabled"> {

@@ -11,18 +11,22 @@
 
 @use "sass:meta";
 
+/* 動的読み込み */
 html[data-theme="light"] {
   @include meta.load-css("highlight.js/styles/github");
 }
 
+/* 動的読み込み */
 html[data-theme="dark"] {
   @include meta.load-css("highlight.js/styles/github-dark");
 }
 
+/* スクロールバーを細くする */
 * {
   scrollbar-width: thin;
 }
 
+/* 画面全体をスクロールしない */
 html {
   overflow-y: hidden;
 }
@@ -33,4 +37,51 @@ html {
   padding: 2px 4px;
   margin-inline: 1px;
   border-radius: 4px;
+}
+
+/* 点滅アニメーション */
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 点滅アニメーション */
+@-webkit-keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 点滅アニメーション */
+.blink {
+  -moz-transition: all 0.5s ease-in-out;
+  -webkit-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  -ms-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+  -moz-animation: blink normal 1.5s infinite ease-in-out;
+  /* Firefox */
+  -webkit-animation: blink normal 1.5s infinite ease-in-out;
+  /* Webkit */
+  -ms-animation: blink normal 1.5s infinite ease-in-out;
+  /* IE */
+  animation: blink normal 1.5s infinite ease-in-out;
+  /* Opera */
 }

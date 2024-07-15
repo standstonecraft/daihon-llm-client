@@ -13,6 +13,7 @@
     "@vueuse/core": "^10.11.0",
     "@vueuse/rxjs": "^10.11.0",
     "core-js": "^3.34.0",
+    "deep-parse-json": "^2.0.0",
     "dexie": "^4.0.7",
     "dompurify": "^3.1.6",
     "highlight.js": "^11.10.0",

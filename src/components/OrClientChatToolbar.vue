@@ -1,11 +1,17 @@
 <template>
   <div class="d-flex justify-end ga-2 align-center pa-3">
     <!-- loader -->
-    <v-progress-circular v-if="chatWaiting" :color="waitingColor" indeterminate class="me-auto"></v-progress-circular>
-    <v-progress-circular v-if="!chatWaiting" color="primary" model-value="0" class="me-auto"></v-progress-circular>
+    <v-progress-circular v-if="chatWaiting.length > 0" :color="waitingColor" indeterminate class="me-auto">
+      <template v-slot:default> {{ chatWaiting.length || '' }}</template>
+    </v-progress-circular>
+    <v-progress-circular v-else model-value="0" class="me-auto"></v-progress-circular>
     <!-- title input -->
-    <v-text-field v-model="chatTitle" label="Title" append-inner-icon="mdi-creation" @click:append-inner="suggestTitle"
-      density="comfortable" hide-details="auto"></v-text-field>
+    <v-text-field v-model="chatTitle" label="Title" density="comfortable" hide-details="auto"
+      :class="titleSuggestClass">
+      <template v-slot:append-inner>
+        <v-icon icon="mdi-creation" @click="suggestTitle" />
+      </template>
+    </v-text-field>
     <!-- agent select -->
     <v-select v-model="selectedAgentIds" :items="agents" :item-props="true" multiple label="Agent" density="comfortable"
       hide-details="auto" style="max-width: 14rem;">
@@ -31,23 +37,22 @@
 import store from '@/ts/dataStore';
 import useLiveQuery from '@/ts/withDexie';
 import { askChatTitle } from '@/ts/llm';
-import { sendChatKey, startChatWaitingKey, stopChatWaitingKey } from './OrClientChat.vue';
-import { showErrorDialogKey } from './OrClient.vue';
+import { injectionKeys } from './injectionSymbols';
 
 /** inject エラーメッセージ表示 */
-const showErrorDialog = inject(showErrorDialogKey) || (() => { throw new Error("showErrorDialogKey is not defined") });
+const showErrorDialog = inject(injectionKeys.OrClient.showErrorDialog) || (() => { throw new Error("showErrorDialogKey is not defined") });
 /** inject チャット待機開始 */
-const startChatWaiting = inject(startChatWaitingKey, () => { throw new Error("startChatWaitingKey is not defined") });
+const startChatWaiting = inject(injectionKeys.OrClientChat.startChatWaiting, () => { throw new Error("startChatWaitingKey is not defined") });
 /** inject チャット待機停止 */
-const stopChatWaiting = inject(stopChatWaitingKey, () => { throw new Error("stopChatWaitingKey is not defined") });
+const stopChatWaiting = inject(injectionKeys.OrClientChat.stopChatWaiting, () => { throw new Error("stopChatWaitingKey is not defined") });
 /** inject チャットを送信する */
-const sendChat = inject(sendChatKey) || (() => { throw new Error("sendChatKey is not defined") });
+const sendChat = inject(injectionKeys.OrClientChat.sendChat) || (() => { throw new Error("sendChatKey is not defined") });
 
 const props = defineProps<{
   /** チャットID */
   chatId: number,
   /** チャット待機中 stringなら待機中かつ色指定あり trueなら待機中かつ色はprimary */
-  chatWaiting: boolean | string
+  chatWaiting: string[]
 }>();
 
 /* 
@@ -77,10 +82,8 @@ function toggleSelectAllAgent() {
 
 /** チャット待機中の色 */
 const waitingColor = computed(() => {
-  if (typeof props.chatWaiting === "string") {
-    return props.chatWaiting
-  } else {
-    return "primary"
+  if (props.chatWaiting.length > 0) {
+    return props.chatWaiting.slice(-1)[0];
   }
 })
 
@@ -91,18 +94,20 @@ const waitingColor = computed(() => {
 const chatTitle = ref<string>((await store.chats.get(props.chatId))?.title || "");
 watch(props, async () => chatTitle.value = (await store.chats.get(props.chatId))?.title || "");
 /** チャットタイトルが入力されたらDBに書き込む */
-watch(chatTitle, () => store.chats.get(props.chatId)
-  .then(chat => chat && store.chats.update(chat.id, { title: chatTitle.value || "no title" })));
+watch(chatTitle, (n, o) => n != o && store.chats.update(props.chatId, { title: chatTitle.value || "no title" }));
 
 /** タイトルを提案する */
-const suggestTitle = () => {
+const titleSuggestClass = ref("");
+const suggestTitle = async () => {
   // make loader yellow
   startChatWaiting("#ff0");
-  askChatTitle(props.chatId)
-    .then(title => store.chats.update(props.chatId, { title }))
+  titleSuggestClass.value = "blink";
+  await askChatTitle(props.chatId)
+    .then(title => chatTitle.value = title)
     .catch(error => showErrorDialog(error.message))
     .finally(() => {
       stopChatWaiting();
+      titleSuggestClass.value = "";
     });
 }
 </script>

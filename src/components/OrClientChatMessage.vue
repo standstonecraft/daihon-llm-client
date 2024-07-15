@@ -47,10 +47,10 @@ import useLiveQuery from '@/ts/withDexie';
 import store from '@/ts/dataStore';
 import { Agent } from '@/ts/dataStore/agents';
 import { ChatContent } from '@/ts/dataStore/chatContents';
-import { sendChatKey } from './OrClientChat.vue';
+import { injectionKeys } from './injectionSymbols';
 
 /** inject チャットを送信する */
-const sendChat = inject(sendChatKey) || (() => { throw new Error("sendChatKey is not defined") });
+const sendChat = inject(injectionKeys.OrClientChat.sendChat) || (() => { throw new Error("sendChatKey is not defined") });
 
 const props = defineProps<{ chatId: number, messageId: number, agentIds: number[] | undefined }>();
 const tab = ref(0);
@@ -68,7 +68,7 @@ const agentDic = useLiveQuery<Map<number, Agent>>(() =>
  * エージェント名を取得
  */
 function getAgentName(content: ChatContent) {
-  const agentName = agentDic.value.get(content.agentId)?.name;
+  const agentName = agentDic.value?.get(content.agentId)?.name;
   switch (content.role) {
     case 'user':
       return `You`;

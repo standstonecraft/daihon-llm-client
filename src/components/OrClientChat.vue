@@ -7,7 +7,7 @@
       style="max-width: calc(100% - 250px);">
       <!-- tools -->
       <OrClientChatToolbar :chat-id="selectedChatId" v-model="selectedAgentIds" class="flex-0-0"
-        v-bind:chat-waiting="chatWaiting" />
+        :chat-waiting="chatWaiting" />
       <v-divider></v-divider>
       <div class="d-flex flex-column ga-3 overflow-y-auto pa-3 flex-1-1">
         <div v-for="message in messages" :key="message.id">
@@ -28,38 +28,22 @@
     </div>
   </div>
 </template>
-<script lang="ts">
+<script lang="ts" setup>
 import store from '@/ts/dataStore';
 import { ChatMessage } from '@/ts/dataStore/chatMessages';
 import useLiveQuery from '@/ts/withDexie';
 import OrClientChatMessage from './OrClientChatMessage.vue';
 import { VBtn } from 'vuetify/components';
 import { requestOpenRouter } from '@/ts/llm';
-import { showErrorDialogKey } from './OrClient.vue';
-
-/** InjectionKey チャットを送信する */
-export const sendChatKey: InjectionKey<(chatId: number, agentIds?: number[]) => Promise<void>> = Symbol()
-
-/**
- * InjectionKey チャット待機開始
- * @param color ローダーの色
- */
-export const startChatWaitingKey: InjectionKey<(color: string | undefined) => void> = Symbol();
-/**
- * InjectionKey チャット待機停止
- */
-export const stopChatWaitingKey: InjectionKey<() => void> = Symbol();
-
-</script>
-<script lang="ts" setup>
+import { injectionKeys } from './injectionSymbols';
 
 /** inject エラーメッセージ表示 */
-const showErrorDialog = inject(showErrorDialogKey) || (() => { throw new Error("showErrorDialogKey is not defined") });
+const showErrorDialog = inject(injectionKeys.OrClient.showErrorDialog) || (() => { throw new Error("showErrorDialogKey is not defined") });
 
 // provide
-provide(sendChatKey, sendChat);
-provide(startChatWaitingKey, startChatWaiting);
-provide(stopChatWaitingKey, stopChatWaiting);
+provide(injectionKeys.OrClientChat.sendChat, sendChat);
+provide(injectionKeys.OrClientChat.startChatWaiting, startChatWaiting);
+provide(injectionKeys.OrClientChat.stopChatWaiting, stopChatWaiting);
 
 /** チャット選択 */
 const selectedChatId = ref(-1);
@@ -113,35 +97,31 @@ watch(selectedChatId, () => {
  * チャット送信と待機中状態
  */
 /** チャット待機中状態 */
-const chatWaiting = ref<boolean | string>(false);
+const chatWaiting = ref<string[]>([]);
 /** チャット送信 */
 async function sendChat(chatId: number, agentIds?: number[]) {
   if (agentIds) {
-    chatWaiting.value = true;
-    try {
-      await requestOpenRouter(chatId, agentIds);
-    } catch (error) {
-      if (error instanceof Error) {
-        showErrorDialog(error.message);
-      } else {
-        showErrorDialog("Unknown error");
+    const messageId = await store.messages.add({ chatId, createdAt: new Date().toISOString() });
+    await Promise.all(agentIds.map(async agentId => {
+      startChatWaiting(agentIds.length > 1 ? "#ad6eed" : undefined);
+      try {
+        await requestOpenRouter(chatId, messageId, agentId);
+      } catch (error) {
+        throw error;
+      } finally {
+        stopChatWaiting();
       }
-    }
-    chatWaiting.value = false;
+    }));
   } else {
     showErrorDialog("Please select an agent.");
   }
 }
 /** チャット待機開始 */
-function startChatWaiting(): (color: string | undefined) => void {
-  return (color: string | undefined) => {
-    chatWaiting.value = color || "primary";
-  };
+function startChatWaiting(color?: string) {
+  chatWaiting.value.push(color || "primary");
 }
 /** チャット待機停止 */
-function stopChatWaiting(): () => void {
-  return () => {
-    chatWaiting.value = false;
-  };
+function stopChatWaiting() {
+  chatWaiting.value.pop();
 }
 </script>

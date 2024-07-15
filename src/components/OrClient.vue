@@ -64,16 +64,13 @@
   </div>
 </template>
 
-<script lang="ts">
-/** InjectionKey エラーメッセージ表示 */
-export const showErrorDialogKey: InjectionKey<(text: string) => void> = Symbol()
-</script>
 <script setup lang="ts">
 import { useTheme } from 'vuetify'
 import store from "@/ts/dataStore";
+import { injectionKeys } from './injectionSymbols';
 
 // provide
-provide(showErrorDialogKey, showErrorDialog);
+provide(injectionKeys.OrClient.showErrorDialog, showErrorDialog);
 
 // 変数
 const tab = ref("tab");
