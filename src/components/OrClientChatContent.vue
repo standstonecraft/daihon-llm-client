@@ -118,11 +118,8 @@ const marked = new Marked()
     }
   }));
 async function parseAndSanitize(text: string) {
-  const target = text.trim()
-    .replace(/\\[\[(](.+?)\\[\])]/gm, " $$$1$$ ")
-    .replace(/^\\[\[(]$/gm, "$$$$")
-    .replace(/^\\[\])]$/gm, "$$$$")
-    .replace(/^(.+?)\n(\$\$\n.+?\n\$\$)/gm, "$1\n\n$2");
+  const target = text
+    .replace(/^(.+?)\n\s*(\${2})(\n?.+?\n?)(\2)/gm, "$1\n\n$2$3$4");
   return purify.sanitize(await marked.parse(target)).trim();
 }
 </script>
