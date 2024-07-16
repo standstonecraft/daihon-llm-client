@@ -32,11 +32,13 @@
     </v-tooltip>
 
     <!-- edit button -->
-    <v-btn @click="$emit('editContent', props.id)" color="secondary" variant="text" density="compact">
+    <v-btn @click="$emit('editContent', props.id)" color="secondary" variant="text" density="compact"
+      v-tooltip="'Edit'">
       <v-icon>$edit</v-icon>
     </v-btn>
     <!-- delete button -->
-    <v-btn @click="$emit('removeContent', props.id)" color="error" variant="text" density="compact">
+    <v-btn @click="$emit('removeContent', props.id)" color="error" variant="text" density="compact"
+      v-tooltip="'Delete'">
       <v-icon>$delete</v-icon>
     </v-btn>
   </div>

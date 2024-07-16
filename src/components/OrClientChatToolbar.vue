@@ -10,6 +10,7 @@
       :class="titleSuggestClass">
       <template v-slot:append-inner>
         <v-icon icon="mdi-creation" @click="suggestTitle" />
+        <v-tooltip activator="parent" location="bottom">Generate Title</v-tooltip>
       </template>
     </v-text-field>
     <!-- agent select -->
@@ -29,6 +30,7 @@
     <!-- send button -->
     <v-btn @click="sendChat(props.chatId, selectedAgentIds)" variant="elevated" size="x-large">
       <v-icon color="primary">mdi-send</v-icon>
+      <v-tooltip activator="parent" location="bottom">Send</v-tooltip>
     </v-btn>
   </div>
 </template>

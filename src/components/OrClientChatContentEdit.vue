@@ -27,17 +27,17 @@
     <div class="d-flex mt-3 align-center ga-2 flex-wrap">
       <!-- enabled switch -->
       <v-switch v-model="inputs.enabled" :label="inputs.enabled ? 'Enabled' : 'Disabled'" hide-details="auto"
-        density="comfortable" class="pl-3 mr-auto"></v-switch>
+        density="comfortable" class="pl-3 mr-auto" v-tooltip="'If disabled, this content will not be sent'"></v-switch>
       <!-- send button -->
-      <v-btn @click="saveAndSend" variant="text" density="comfortable" color="primary">
+      <v-btn @click="saveAndSend" variant="text" density="comfortable" color="primary" v-tooltip="'Send'">
         <v-icon>mdi-send</v-icon>
       </v-btn>
       <!-- complete button -->
-      <v-btn @click="save" variant="text" density="comfortable" color="secondary">
+      <v-btn @click="save" variant="text" density="comfortable" color="secondary" v-tooltip="'Save'">
         <v-icon>$complete</v-icon>
       </v-btn>
       <!-- cancel button -->
-      <v-btn @click="cancel" variant="text" density="comfortable" color="error">
+      <v-btn @click="cancel" variant="text" density="comfortable" color="error" v-tooltip="'Cancel'">
         <v-icon>$cancel</v-icon>
       </v-btn>
     </div>
