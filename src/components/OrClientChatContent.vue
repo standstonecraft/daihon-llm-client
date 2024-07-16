@@ -2,7 +2,7 @@
   <div class="d-flex flex-column pa-3" :class="props.enabled ? '' : 'text-disabled'">
     <!-- display -->
     <span class="text-subtitle-1 font-weight-bold">{{ props.role }}({{ agentName }}):</span>
-    <p v-html="parsedContent" class="pl-6"></p>
+    <p v-html="parsedContent" class="markdown-body"></p>
     <!-- image -->
     <div v-if="props.contentType == 'image_url'" class="align-self-center pt-3">
       <div v-if="props.contentImage">
@@ -103,7 +103,7 @@ function toggleEnabled() {
 const parsedContent = computedAsync(async () => await parseAndSanitize(props.content), "", { lazy: true });
 const purify = DOMPurify(window);
 const marked = new Marked()
-  .use({ gfm: true })
+  .use({ async: true, breaks: true, gfm: true })
   .use(markedKatex({ displayMode: true, output: "mathml", strict: "ignore", throwOnError: false }))
   .use(markedCodeFormat({/* Prettier options */ }))
   .use(markedHighlight({
