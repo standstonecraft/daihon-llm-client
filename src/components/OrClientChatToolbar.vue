@@ -9,7 +9,7 @@
     <v-text-field v-model="chatTitle" label="Title" density="comfortable" hide-details="auto"
       :class="titleSuggestClass">
       <template v-slot:append-inner>
-        <v-icon icon="mdi-creation" @click="suggestTitle" />
+        <v-icon icon="mdi-creation" @click="generateTitle" />
         <v-tooltip activator="parent" location="bottom">Generate Title</v-tooltip>
       </template>
     </v-text-field>
@@ -100,7 +100,7 @@ watch(chatTitle, (n, o) => n != o && store.chats.update(props.chatId, { title: c
 
 /** タイトルを提案する */
 const titleSuggestClass = ref("");
-const suggestTitle = async () => {
+const generateTitle = async () => {
   // make loader yellow
   startChatWaiting("#ff0");
   titleSuggestClass.value = "blink";

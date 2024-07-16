@@ -292,7 +292,7 @@ export async function askChatTitle(chatId: number) {
     });
     const completionParam = {
       messages,
-      model: config.titleSuggestionModel,
+      model: config.titleGenerationModel,
     } as const satisfies ChatCompletionCreateParamsNonStreaming;
     // request
     const completion = await openai.chat.completions.create(completionParam);

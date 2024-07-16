@@ -29,11 +29,11 @@
     </div>
     <v-divider></v-divider>
     <div class="pa-4">
-      <h3>Chat Title Suggestion</h3>
+      <h3>Chat Title Generation</h3>
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
         <p>AI choose the title of the chat when you click the <v-icon>mdi-creation</v-icon> button in the chat title
           field.</p>
-        <v-text-field v-model="titleSuggestionModel" label="Model Name" placeholder="anthropic/claude-3-haiku"
+        <v-text-field v-model="titleGenerationModel" label="Model Name" placeholder="anthropic/claude-3-haiku"
           hide-details type="text"></v-text-field>
       </div>
     </div>
@@ -70,9 +70,9 @@ watch(commonPrompt, (newPrompt) => {
   store.config.update({ commonPrompt: newPrompt || "" });
 });
 
-const titleSuggestionModel = ref<string | undefined>("");
-watch(titleSuggestionModel, (newPrompt) => {
-  store.config.update({ titleSuggestionModel: newPrompt || "" });
+const titleGenerationModel = ref<string | undefined>("");
+watch(titleGenerationModel, (newPrompt) => {
+  store.config.update({ titleGenerationModel: newPrompt || "" });
 });
 
 const streaming = ref(false);
@@ -86,20 +86,12 @@ function deleteProfile() {
 
 function resetCommonPrompt() {
   commonPrompt.value =
-    `あなたは高度に訓練された AIアシスタントです。ユーザーからの入力に応じて、質問への回答や質問の生成を行います。以下の指示に従って応答してください:
+    `あなたは高度に訓練された AIアシスタントです。以下の指示に従って応答してください:
 
 ## 応答の書式
 
 Markdownの書式を遵守してください。
-また、計算手順として数式を記載する場合はKaTeX形式で記述してください。
-例：
-\`\`\`
-(1行空ける)
-$$
-A = \frac{(a + b) \times h}{2}
-$$
-(1行空ける)
-\`\`\`
+また、計算手順として数式を記載する場合はKaTeX形式で記述してください。ブロックとして書く場合は "$$(数式)$$" のように "$$" で囲んでください。インラインで書く場合は " $(数式)$ " のように "$" で囲んで空白を開けてください。
 
 ## 応答の品質
 
@@ -113,7 +105,7 @@ onMounted(() => {
   store.config.get().then(c => {
     apiKey.value = c.apiKey;
     commonPrompt.value = c.commonPrompt;
-    titleSuggestionModel.value = c.titleSuggestionModel;
+    titleGenerationModel.value = c.titleGenerationModel;
   })
 })
 </script>
