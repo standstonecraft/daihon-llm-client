@@ -105,11 +105,7 @@ const purify = DOMPurify(window);
 const marked = new Marked()
   .use({ gfm: true })
   .use(markedKatex({ displayMode: true, output: "mathml", strict: "ignore", throwOnError: false }))
-  .use(
-    markedCodeFormat({
-      /* Prettier options */
-    })
-  )
+  .use(markedCodeFormat({/* Prettier options */ }))
   .use(markedHighlight({
     langPrefix: 'hljs language-',
     highlight(code, lang, info) {
