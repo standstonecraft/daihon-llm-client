@@ -4,7 +4,6 @@
 
 ```mermaid
 flowchart TD
-flowchart TD
   AppFooter;
   ImagePicker;
   OrClient;
