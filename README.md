@@ -2,42 +2,52 @@
 
 ## Vue components dependencies
 
-```powershell
-$choices = (gci ./src/components *.vue | select -ExpandProperty BaseName) -join "|"
-$pattern ="<($choices)\W"
-gci ./src/components *.vue |
-%{
-  $file = $_.name
-  $list =$_ | Select-String -Pattern $pattern |
-      %{$_.Matches} |
-      %{$_.Groups[1]} |
-      %{[pscustomobject]@{file=$file;child=$_.Value}}
-  if($list.count -gt 0){$list}
-  else{[pscustomobject]@{file=$file;child=""}}
-}
+```mermaid
+flowchart TD
+  AppFooter;
+  ImagePicker;
+  OrClient;
+  OrClient --> OrClientChat;
+  OrClient --> OrClientAgentList;
+  OrClient --> OrClientConfig;
+  OrClientAgentCard;
+  OrClientAgentList;
+  OrClientAgentList --> OrClientAgentCard;
+  OrClientChat;
+  OrClientChat --> OrClientChatSidebar;
+  OrClientChat --> OrClientChatToolbar;
+  OrClientChat --> OrClientChatMessage;
+  OrClientChatContent;
+  OrClientChatContent --> OrClientChatContentStructured;
+  OrClientChatContentEdit;
+  OrClientChatContentEdit --> ImagePicker;
+  OrClientChatContentStructured;
+  OrClientChatMessage;
+  OrClientChatMessage --> OrClientChatContent;
+  OrClientChatMessage --> OrClientChatContentEdit;
+  OrClientChatSidebar;
+  OrClientChatToolbar;
+  OrClientConfig;
 ```
 
-| file                              | child                         |
-| --------------------------------- | ----------------------------- |
-| AppFooter.vue                     |                               |
-| ImagePicker.vue                   |                               |
-| OrClient.vue                      | OrClientChat                  |
-| OrClient.vue                      | OrClientAgentList             |
-| OrClient.vue                      | OrClientConfig                |
-| OrClientAgentCard.vue             |                               |
-| OrClientAgentList.vue             | OrClientAgentCard             |
-| OrClientChat.vue                  | OrClientChatSidebar           |
-| OrClientChat.vue                  | OrClientChatToolbar           |
-| OrClientChat.vue                  | OrClientChatMessage           |
-| OrClientChatContent.vue           | OrClientChatContentStructured |
-| OrClientChatContentEdit.vue       | ImagePicker                   |
-| OrClientChatContentStructured.vue |                               |
-| OrClientChatMessage.vue           | OrClientChatContent           |
-| OrClientChatMessage.vue           | OrClientChatContentEdit       |
-| OrClientChatSidebar.vue           |                               |
-| OrClientChatToolbar.vue           |                               |
-| OrClientConfig.vue                |                               |
+powershell code to output mermaid:
 
+```powershell
+$vues = gci ./src/components *.vue | select -ExpandProperty BaseName
+$choices = $vues -join "|"
+$pattern ="<($choices)\W"
+$list = @()
+gci ./src/components *.vue |
+%{
+  $name = $_.BaseName
+  $list += "  $name;"
+  $list += $_ | Select-String -Pattern $pattern |
+      %{$_.Matches} |
+      %{$_.Groups[1]} |
+      %{"  $name --> $($_.Value);"}
+}
+@("flowchart TD", $list)
+```
 
 ## Vuetify (Default)
 
