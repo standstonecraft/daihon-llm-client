@@ -4,6 +4,7 @@
 
 ```mermaid
 flowchart TD
+flowchart TD
   AppFooter;
   ImagePicker;
   OrClient;
@@ -18,10 +19,8 @@ flowchart TD
   OrClientChat --> OrClientChatToolbar;
   OrClientChat --> OrClientChatMessage;
   OrClientChatContent;
-  OrClientChatContent --> OrClientChatContentStructured;
   OrClientChatContentEdit;
   OrClientChatContentEdit --> ImagePicker;
-  OrClientChatContentStructured;
   OrClientChatMessage;
   OrClientChatMessage --> OrClientChatContent;
   OrClientChatMessage --> OrClientChatContentEdit;

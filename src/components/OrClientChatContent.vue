@@ -2,9 +2,9 @@
   <div class="d-flex flex-column pa-3" :class="props.enabled ? '' : 'text-disabled'">
     <!-- display -->
     <span class="text-subtitle-1 font-weight-bold">{{ props.role }}({{ agentName }}):</span>
-    <OrClientChatContentStructured :raw-content="props.content" />
+    <p v-html="parsedContent" class="pl-6"></p>
     <!-- image -->
-    <div v-if="props.contentType == 'image_url'">
+    <div v-if="props.contentType == 'image_url'" class="align-self-center pt-3">
       <div v-if="props.contentImage">
         <v-img :width="240" cover :src="props.contentImage"></v-img>
       </div>
@@ -54,7 +54,13 @@ pre {
 import store from '@/ts/dataStore';
 import { ChatContent } from '@/ts/dataStore/chatContents';
 import { asyncComputed } from '@vueuse/core'
-import OrClientChatContentStructured from './OrClientChatContentStructured.vue';
+import { computedAsync } from '@vueuse/core';
+import DOMPurify from 'dompurify';
+import { Marked } from 'marked';
+import { markedHighlight } from "marked-highlight";
+import hljs from 'highlight.js';
+import markedCodeFormat from 'marked-code-format';
+import markedKatex from 'marked-katex-extension';
 
 const props = defineProps<ChatContent>();
 const emit = defineEmits<{
@@ -83,5 +89,33 @@ const agentName = computed(() =>
  */
 function toggleEnabled() {
   store.contents.update({ ...props, enabled: !props.enabled });
+}
+
+/*
+ * sanitized Content
+ */
+const parsedContent = computedAsync(async () => await parseAndSanitize(props.content), "", { lazy: true });
+const purify = DOMPurify(window);
+const marked = new Marked()
+  .use({ gfm: true })
+  .use(markedKatex({ displayMode: true, output: "mathml", strict: "ignore", throwOnError: false }))
+  .use(
+    markedCodeFormat({
+      /* Prettier options */
+    })
+  )
+  .use(markedHighlight({
+    langPrefix: 'hljs language-',
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    }
+  }));
+async function parseAndSanitize(text: string) {
+  const target = text.trim()
+    .replace(/\\[\[(](.+?)\\[\])]/gm, " $$$1$$ ")
+    .replace(/^\\[\[(]$/g, "\$")
+    .replace(/^\\[\])]$/g, "\$");
+  return purify.sanitize(await marked.parse(target)).trim();
 }
 </script>
