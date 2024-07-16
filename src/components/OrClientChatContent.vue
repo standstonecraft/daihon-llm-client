@@ -114,8 +114,10 @@ const marked = new Marked()
     }
   }));
 async function parseAndSanitize(text: string) {
+  // replace for katex
   const target = text
     .replace(/^(.+?)\n\s*(\${2})(\n?.+?\n?)(\2)/gm, "$1\n\n$2$3$4");
+  // parse markdown and sanitize
   return purify.sanitize(await marked.parse(target)).trim();
 }
 </script>
