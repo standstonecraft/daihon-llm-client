@@ -15,13 +15,19 @@
     <p v-html="structured.remaining" class="pl-4"></p>
   </div>
 </template>
+<style>
+span.katex {
+  margin: 0.1rem !important;
+}
+</style>
 <script lang="ts" setup>
 import { computedAsync } from '@vueuse/core';
 import DOMPurify from 'dompurify';
-import { Marked } from 'marked';
+import { Marked, TokenizerObject } from 'marked';
 import { markedHighlight } from "marked-highlight";
 import hljs from 'highlight.js';
 import markedCodeFormat from 'marked-code-format';
+import markedKatex from 'marked-katex-extension';
 
 const props = defineProps({
   rawContent: { type: String, required: true }
@@ -51,9 +57,9 @@ async function parseResponse() {
   let remaining = props.rawContent;
   for (const obj of subContents) {
     [obj.text, remaining] = extractAndRemove(remaining, new RegExp(`<llm_${obj.value}>(.*?)</llm_${obj.value}>`, 's'));
-    obj.text = purify.sanitize(await marked.parse(obj.text)).trim();
+    obj.text = await parseAndSanitize(obj.text);
   }
-  remaining = purify.sanitize(await marked.parse(remaining)).trim();
+  remaining = await parseAndSanitize(remaining);
   subContents = subContents.filter(x => x.text);
   const availables = subContents.map(x => x.value);
   const opened = priorTagNames.filter(p => availables.includes(p));
@@ -99,8 +105,10 @@ function toggleSection(value: string) {
  * sanitize
  */
 const purify = DOMPurify(window);
+
 const marked = new Marked()
   .use({ gfm: true })
+  .use(markedKatex({ displayMode: true, output: "mathml", strict: "ignore", throwOnError: false }))
   .use(
     markedCodeFormat({
       /* Prettier options */
@@ -113,4 +121,11 @@ const marked = new Marked()
       return hljs.highlight(code, { language }).value;
     }
   }));
+async function parseAndSanitize(text: string) {
+  const target = text.trim()
+    .replace(/\\[\[(](.+?)\\[\])]/gm, " $$$1$$ ")
+    .replace(/^\\[\[(]$/g, "\$")
+    .replace(/^\\[\])]$/g, "\$");
+  return purify.sanitize(await marked.parse(target)).trim();
+}
 </script>
