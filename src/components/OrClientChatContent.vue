@@ -45,10 +45,6 @@
 </template>
 <style>
 pre {
-  overflow-x: auto;
-}
-
-pre {
   border: 1px solid gray;
 }
 

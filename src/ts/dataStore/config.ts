@@ -1,3 +1,4 @@
+import { InsertType, UpdateSpec } from "dexie";
 import { type DbType } from "../dataStore";
 
 /**
@@ -17,13 +18,13 @@ const CONFIG_ID = 0;
 const defaultConfig: Config = {
   id: 0,
   apiKey: "",
-  commonPrompt: "",
+  commonPrompt: "あなたは高度に訓練された AIアシスタントです。",
   darkTheme: true,
   streaming: false,
   titleGenerationModel: "anthropic/claude-3-haiku",
 };
 async function get(db: DbType) {
-  return await db.config.get(CONFIG_ID) ?? defaultConfig;
+  return { ...defaultConfig, ...(await db.config.get(CONFIG_ID)) };
 }
 
 const configStore = (db: DbType) => ({
@@ -37,6 +38,6 @@ const configStore = (db: DbType) => ({
    * 設定をデータベースに保存します。
    *
    */
-  update: (cfg: Partial<Config>) => get(db).then(c => db.config.put({ ...c, ...cfg })),
+  update: (cfg: UpdateSpec<InsertType<Config, "id">>) => db.config.update(CONFIG_ID, cfg),
 })
 export default configStore;

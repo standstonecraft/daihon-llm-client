@@ -4,6 +4,7 @@ import agentsStore, { Agent } from "./dataStore/agents";
 import chatsStore, { Chat } from "./dataStore/chats";
 import messagesStore, { ChatMessage } from "./dataStore/chatMessages";
 import contentsStore, { ChatContent } from "./dataStore/chatContents";
+import presetPromptsStore, { PresetPrompt } from "./dataStore/presetPrompts";
 
 
 /** 設定は単一のエンティティであるため、IDは0固定 */
@@ -14,6 +15,7 @@ export type DbType = Dexie & {
   chats: EntityTable<Chat, 'id'>;
   messages: EntityTable<ChatMessage, 'id'>;
   contents: EntityTable<ChatContent, 'id'>;
+  presetPrompts: EntityTable<PresetPrompt, 'id'>;
 };
 
 // データベース
@@ -25,6 +27,7 @@ db.version(1).stores({
   chats: '++id',
   messages: '++id, chatId',
   contents: '++id, chatId, messageId',
+  presetPrompts: '++id, sortIndex',
 });
 
 const store = {
@@ -33,6 +36,7 @@ const store = {
   chats: chatsStore(db),
   contents: contentsStore(db),
   messages: messagesStore(db),
+  presetPrompts: presetPromptsStore(db),
   /**
    * DBをリセット
    */

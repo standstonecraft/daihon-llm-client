@@ -21,7 +21,7 @@
               </v-btn>
             </div>
             <!-- tab -->
-            <v-tabs v-model="tab">
+            <v-tabs v-model="tab" center-active show-arrows>
               <v-tab v-for="(cont, index) in contents" :value="index" density="compact">
                 {{ getAgentName(cont) }}
               </v-tab>
