@@ -1,13 +1,12 @@
 <template>
-  <div class="d-flex fill-height">
+  <div class="h-100">
     <!-- sidebar -->
-    <OrClientChatSidebar v-model="selectedChatId" />
+    <OrClientChatSidebar v-model:selectedChatId="selectedChatId" v-model:drawer="chatDrawer" />
     <!-- message list -->
-    <div v-if="selectedChatId !== -1" class="fill-height w-100 d-flex flex-column justify-end"
-      style="max-width: calc(100% - 250px);">
+    <div v-if="selectedChatId !== -1" class="fill-height w-100 d-flex flex-column justify-end">
       <!-- tools -->
-      <OrClientChatToolbar :chat-id="selectedChatId" v-model="selectedAgentIds" class="flex-0-0"
-        :chat-waiting="chatWaiting" />
+      <OrClientChatToolbar v-model:chat-id="selectedChatId" v-model:selected-agent-ids="selectedAgentIds"
+        class="flex-0-0" :chat-waiting="chatWaiting" />
       <v-divider></v-divider>
       <div class="d-flex flex-column ga-3 overflow-y-auto pa-3 flex-1-1">
         <div v-for="message in messages" :key="message.id">
@@ -23,7 +22,7 @@
         <div ref="listBottom" style="height: 20px;"></div>
       </div>
     </div>
-    <div v-else class="d-flex w-100 align-center justify-center">
+    <div v-else class="d-flex w-100 h-100 align-center justify-center">
       <span class="text-h5 text-center">Select a chat to start</span>
     </div>
   </div>
@@ -45,12 +44,13 @@ provide(injectionKeys.OrClientChat.sendChat, sendChat);
 provide(injectionKeys.OrClientChat.startChatWaiting, startChatWaiting);
 provide(injectionKeys.OrClientChat.stopChatWaiting, stopChatWaiting);
 
+const chatDrawer = defineModel<boolean>({ required: true });
 /** チャット選択 */
 const selectedChatId = ref(-1);
 /** メッセージ */
 const messages = useLiveQuery<ChatMessage[]>(
   () => store.messages.getAll().where("chatId").equals(selectedChatId.value).toArray(), [selectedChatId]);
-const selectedAgentIds = ref<number[]>();
+const selectedAgentIds = ref<number[]>([]);
 
 /*
  * 新規メッセージ追加
@@ -100,19 +100,23 @@ watch(selectedChatId, () => {
 const chatWaiting = ref<string[]>([]);
 /** チャット送信 */
 async function sendChat(chatId: number, agentIds?: number[]) {
-  if (agentIds) {
-    const messageId = await store.messages.add({ chatId, createdAt: new Date().toISOString() });
-    await Promise.all(agentIds.map(async agentId => {
-      startChatWaiting(agentIds.length > 1 ? "#ad6eed" : undefined);
-      try {
-        await requestOpenRouter(chatId, messageId, agentId);
-      } finally {
-        stopChatWaiting();
-      }
-    }));
-  } else {
-    showErrorDialog("Please select an agent.");
+  if (chatId < 0) {
+    showErrorDialog("Please select a chat.");
+    return;
   }
+  if (!agentIds || agentIds.length == 0) {
+    showErrorDialog("Please select one or more agent.");
+    return;
+  }
+  const messageId = await store.messages.add({ chatId, createdAt: new Date().toISOString() });
+  await Promise.all(agentIds.map(async agentId => {
+    startChatWaiting(agentIds.length > 1 ? "#ad6eed" : undefined);
+    try {
+      await requestOpenRouter(chatId, messageId, agentId);
+    } finally {
+      stopChatWaiting();
+    }
+  }));
 }
 /** チャット待機開始 */
 function startChatWaiting(color?: string) {

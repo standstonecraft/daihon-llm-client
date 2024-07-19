@@ -1,34 +1,16 @@
 <template>
-  <v-sheet class="fill-height" max-width="250" max-height="100%">
-    <!-- サイドバー閉じるボタン -->
-    <div v-if="collapsed" style="position: relative;">
-      <v-btn @click="collapsed = false" rounded="xl" style="position: absolute;left: calc(100% - 20px);top: 8px;">
-        <v-icon>mdi-chevron-double-right</v-icon>
+  <v-navigation-drawer v-model="drawer" mobile-breakpoint="sm" :location="$vuetify.display.xs ? 'bottom' : undefined">
+    <v-list-item class="py-4">
+      <v-btn @click="addChat" prepend-icon="mdi-message-text" variant="outlined" color="primary">
+        NEW CHAT
       </v-btn>
-    </div>
-    <!-- サイドバー -->
-    <div v-if="!collapsed" class="d-flex flex-column ga-2" style="max-height: 100%;">
-      <div class="pa-2" style="width: 250px;">
-        <div class="d-flex justify-end">
-          <v-btn @click="collapsed = true">
-            <v-icon>mdi-chevron-double-left</v-icon>
-          </v-btn>
-        </div>
-        <v-btn @click="addChat" prepend-icon="mdi-message-text" variant="outlined" color="primary">
-          NEW CHAT
-        </v-btn>
-      </div>
-      <v-divider class="border-opacity-50 mt-2"></v-divider>
-      <div class="flex-1-1-100 overflow-y-auto pl-2 pr-1">
-        <!-- chat sheet -->
-        <v-sheet v-for="chat in chats" :key="chat.id" @click="selectChat(chat.id)"
-          :color="isSelected(chat.id) ? 'surface-select' : ''"
-          class="chat-sheet-item cursor-pointer d-flex flex-nowrap align-center pa-1" rounded>
-          <!-- title -->
-          <span class="d-block text-truncate flex-1-1 py-1 me-auto">{{ chat.title }}</span>
-          <!-- delete button -->
-          <v-btn @click.stop="deleteChat(chat.id)" icon="$delete" size="x-small" variant="text"
-            class="chat-sheet-delete"></v-btn>
+    </v-list-item>
+
+    <v-list density="compact" nav>
+      <v-list-item v-for="chat in chats" :key="chat.id" :value="chat.id" @click="selectChat(chat.id)"
+        class="chat-sheet-item">
+        <template v-slot:title>
+          <span class="text-truncate">{{ chat.title }}</span>
           <v-tooltip activator="parent" location="end center" origin="top start">
             <!-- tooltip content -->
             <p>Title: {{ chat.title }}</p>
@@ -38,10 +20,15 @@
             <p>Last tokens: {{ chat.lastTokenCount?.input || 'N/A' }} + {{ chat.lastTokenCount?.output || 'N/A' }} = {{
               chat.lastTokenCount?.total || 'N/A' }}</p>
           </v-tooltip>
-        </v-sheet>
-      </div>
-    </div>
-  </v-sheet>
+        </template>
+        <template v-slot:append>
+          <v-btn @click.stop="deleteChat(chat.id)" icon="$delete" size="x-small" variant="text"
+            class="chat-sheet-delete"></v-btn>
+        </template>
+      </v-list-item>
+    </v-list>
+  </v-navigation-drawer>
+
 </template>
 
 <style>
@@ -59,12 +46,7 @@ import store from "@/ts/dataStore";
 import { Chat } from "@/ts/dataStore/chats";
 import { liveQuery } from "dexie";
 
-const emit = defineEmits<{
-  /** チャットが選択された */
-  chatSelected: [id: number]
-}>();
-
-const collapsed = ref(false);
+const drawer = defineModel<boolean>("drawer", { required: true });
 
 const chats = useObservable(liveQuery(() => store.chats.getAll().orderBy("id").reverse().toArray()) as any) as Ref<Chat[]>;
 
@@ -82,26 +64,21 @@ const addChat = async () => {
   if (newChatId < 0) {
     window.alert("Failed to create new chat.");
   }
-  selectChat(newChatId);
+  selectedChatId.value = newChatId;
 }
 
 /*
  * chat select
  */
 /** 選択されたチャットID */
-const selectedChatId = defineModel<number>({ required: true });
+const selectedChatId = defineModel<number>("selectedChatId", { required: true });
+function selectChat(id: number) {
+  selectedChatId.value = id;
+  drawer.value = false;
+}
 /** チャットを削除 */
 async function deleteChat(id: number) {
   selectedChatId.value = -1;
   store.chats.remove(id);
-}
-/** チャットを選択 */
-function selectChat(id: number) {
-  selectedChatId.value = id;
-  emit('chatSelected', id);
-}
-/** 指定されたIDのチャットを選択しているか */
-function isSelected(id: number) {
-  return selectedChatId.value === id;
 }
 </script>

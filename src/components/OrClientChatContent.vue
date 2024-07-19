@@ -16,7 +16,7 @@
   <!-- tool area -->
   <div class="d-flex align-center ga-2 px-2">
     <!-- enabled switch -->
-    <v-switch v-model="props.enabled" :label="props.enabled ? 'Enabled' : 'Disabled'" @click.prevent="toggleEnabled"
+    <v-switch model-value="props.enabled" :label="props.enabled ? 'Enabled' : 'Disabled'" @click.prevent="toggleEnabled"
       hide-details="auto" color="secondary" density="compact" class="pl-3 mr-auto"></v-switch>
     <!-- warning button show invalid item tooltip -->
     <v-tooltip v-if="props.invalid.length">

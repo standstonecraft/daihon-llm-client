@@ -28,7 +28,7 @@
       </template>
     </v-select>
     <!-- send button -->
-    <v-btn @click="sendChat(props.chatId, selectedAgentIds)" variant="elevated" size="x-large">
+    <v-btn @click="sendChat(chatId, selectedAgentIds)" variant="elevated" size="x-large">
       <v-icon color="primary">mdi-send</v-icon>
       <v-tooltip activator="parent" location="bottom">Send</v-tooltip>
     </v-btn>
@@ -50,9 +50,9 @@ const stopChatWaiting = inject(injectionKeys.OrClientChat.stopChatWaiting, () =>
 /** inject チャットを送信する */
 const sendChat = inject(injectionKeys.OrClientChat.sendChat) || (() => { throw new Error("sendChatKey is not defined") });
 
+/** チャットID */
+const chatId = defineModel<number>("chatId", { required: true, default: -1 });
 const props = defineProps<{
-  /** チャットID */
-  chatId: number,
   /** チャット待機中 stringなら待機中かつ色指定あり trueなら待機中かつ色はprimary */
   chatWaiting: string[]
 }>();
@@ -61,7 +61,7 @@ const props = defineProps<{
  * エージェント選択
  */
 /** 選択されたエージェントID */
-const selectedAgentIds = defineModel<number[]>({ required: true, default: [] });
+const selectedAgentIds = defineModel<number[]>("selectedAgentIds", { required: true, default: [] });
 /** エージェントリスト v-selectに最適な形にマッピング */
 const agents = useLiveQuery(() => store.agents.getAll().toArray()
   .then(ags => ags.map(a => ({ title: a.name, value: a.id, subtitle: a.model }))) || [], []);
@@ -93,10 +93,10 @@ const waitingColor = computed(() => {
  * チャットタイトル
  */
 /** チャットタイトル 初期値はDBから取得 */
-const chatTitle = ref<string>((await store.chats.get(props.chatId))?.title || "");
-watch(props, async () => chatTitle.value = (await store.chats.get(props.chatId))?.title || "");
+const chatTitle = ref<string>((await store.chats.get(chatId.value))?.title || "");
+watch(props, async () => chatTitle.value = (await store.chats.get(chatId.value))?.title || "");
 /** チャットタイトルが入力されたらDBに書き込む */
-watch(chatTitle, (n, o) => n != o && store.chats.update(props.chatId, { title: chatTitle.value || "no title" }));
+watch(chatTitle, (n, o) => n != o && store.chats.update(chatId.value, { title: chatTitle.value || "no title" }));
 
 /** タイトルを提案する */
 const titleSuggestClass = ref("");
@@ -104,7 +104,7 @@ const generateTitle = async () => {
   // make loader yellow
   startChatWaiting("#ff0");
   titleSuggestClass.value = "blink";
-  await askChatTitle(props.chatId)
+  await askChatTitle(chatId.value)
     .then(title => chatTitle.value = title)
     .catch(error => showErrorDialog(error.message))
     .finally(() => {
