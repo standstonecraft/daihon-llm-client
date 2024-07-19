@@ -33,8 +33,8 @@
               @change="onListOrdered">
               <template #item="{ element }">
                 <v-list-item :title="element.name" @click="editingPresetId = element.id"
-                  :isactive="editingPresetId === element.id" :variant="editingPresetId === element.id ? 'tonal' : null"
-                  class="customPrepend">
+                  :isactive="editingPresetId === element.id"
+                  :variant="editingPresetId === element.id ? 'tonal' : 'text'" class="customPrepend">
                   <template v-slot:prepend>
                     <v-icon class="draggable-handle cursor-grab" size="small">mdi-drag-horizontal-variant</v-icon>
                   </template>
