@@ -1,4 +1,4 @@
-import { InsertType, remove, UpdateSpec } from "dexie";
+import { InsertType, UpdateSpec } from "dexie";
 import { type DbType } from "../dataStore";
 
 export type PresetPrompt = {
