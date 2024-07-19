@@ -106,8 +106,6 @@ async function sendChat(chatId: number, agentIds?: number[]) {
       startChatWaiting(agentIds.length > 1 ? "#ad6eed" : undefined);
       try {
         await requestOpenRouter(chatId, messageId, agentId);
-      } catch (error) {
-        throw error;
       } finally {
         stopChatWaiting();
       }
