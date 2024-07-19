@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex fill-height">
     <!-- sidebar -->
-    <OrClientChatSidebar v-model="selectedChatId" @chat-selected="(id: number) => selectedChatId = id" />
+    <OrClientChatSidebar v-model="selectedChatId" />
     <!-- message list -->
     <div v-if="selectedChatId !== -1" class="fill-height w-100 d-flex flex-column justify-end"
       style="max-width: calc(100% - 250px);">
