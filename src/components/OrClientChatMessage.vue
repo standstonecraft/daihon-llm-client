@@ -38,7 +38,7 @@
     </div>
 
     <!-- content edit dialog -->
-    <v-dialog v-model="contentEditDialog" class="w-75">
+    <v-dialog v-model="contentEditDialog" fullscreen>
       <OrClientChatContentEdit :content-id="editingContentId" @close="closeContentEditDialog"
         @send="sendChat(props.chatId, props.agentIds)" />
     </v-dialog>
