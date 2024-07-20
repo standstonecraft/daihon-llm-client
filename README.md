@@ -1,130 +1,37 @@
 # Daihon LLM Client
 
-## Vue components dependencies
+「Daihon - 高度なAI対話を実現する次世代プラットフォーム」
 
-```mermaid
-flowchart TD
-  AppFooter;
-  ImagePicker;
-  OrClient;
-  OrClient --> OrClientChat;
-  OrClient --> OrClientAgentList;
-  OrClient --> OrClientConfig;
-  OrClientAgentCard;
-  OrClientAgentList;
-  OrClientAgentList --> OrClientAgentCard;
-  OrClientChat;
-  OrClientChat --> OrClientChatSidebar;
-  OrClientChat --> OrClientChatToolbar;
-  OrClientChat --> OrClientChatMessage;
-  OrClientChatContent;
-  OrClientChatContentEdit;
-  OrClientChatContentEdit --> ImagePicker;
-  OrClientChatMessage;
-  OrClientChatMessage --> OrClientChatContent;
-  OrClientChatMessage --> OrClientChatContentEdit;
-  OrClientChatSidebar;
-  OrClientChatToolbar;
-  OrClientConfig;
-```
+Daihonは、AI開発者、研究者、そして高度なAI利用を求めるパワーユーザーのために設計された革新的なAIチャットアプリケーションです。複数のAIモデルを自在に使いこなし、カスタマイズ性に優れた機能で、あなたのAI対話体験を最大限に引き出します。
 
-powershell code to output mermaid:
+主な特徴：
 
-```powershell
-$vues = gci ./src/components *.vue | select -ExpandProperty BaseName
-$choices = $vues -join "|"
-$pattern ="<($choices)\W"
-$list = @()
-gci ./src/components *.vue |
-%{
-  $name = $_.BaseName
-  $list += "  $name;"
-  $list += $_ | Select-String -Pattern $pattern |
-      %{$_.Matches} |
-      %{$_.Groups[1]} |
-      %{"  $name --> $($_.Value);"}
-}
-@("flowchart TD", $list)
-```
+1. マルチモデル対応：
+   - [OpenRouter](https://openrouter.ai/) を使用し、Gemma、Claudeなど、様々なAIモデルを柔軟に切り替え可能。
+   - タスクや目的に応じて、最適なモデルを選択できます。
 
-## Vuetify (Default)
+2. 高度なカスタマイズ：
+   - エージェント（AI）ごとの個別設定。
+   - システムプロンプトやプリセットプロンプトのカスタマイズ機能。
 
-This is the official scaffolding tool for Vuetify, designed to give you a head start in building your new Vuetify application. It sets up a base template with all the necessary configurations and standard directory structure, enabling you to begin development without the hassle of setting up the project from scratch.
+3. 効率的な情報管理：
+   - メッセージ履歴の編集・削除機能で、議論の整理やトークンの節約が可能。
+   - AIによる要約機能で長期の対話も効率的に管理。
 
-## ❗️ Important Links
+4. マルチエージェント連携：
+   - 複数のAIアシスタントに同時にチャットを送信し、回答を比較検討。
+   - 統合AIによる多角的な情報の集約機能。
 
-- 📄 [Docs](https://vuetifyjs.com/)
-- 🚨 [Issues](https://issues.vuetifyjs.com/)
-- 🏬 [Store](https://store.vuetifyjs.com/)
-- 🎮 [Playground](https://play.vuetifyjs.com/)
-- 💬 [Discord](https://community.vuetifyjs.com)
+5. ユーザーフレンドリーなインターフェース：
+   - ダークモードを採用した使いやすいデザイン。
+   - チャットタイトルのAI自動生成機能。
 
-## 💿 Install
+6. 柔軟な対話管理：
+   - メッセージ履歴の編集・削除による効率的な軌道修正。
+   - 画像分析後のテキスト保存と画像削除によるリソース最適化。
 
-Set up your project using your preferred package manager. Use the corresponding command to install the dependencies:
+Daihonは、単なるチャットツールを超えた、高度なAI研究開発プラットフォームです。複数のAIモデルを駆使し、カスタマイズ可能なプロンプト設定を活用することで、目的に応じた効果的なAI対話を実現します。常に進化を続けるこのアプリケーションは、AIとのインタラクションに新たな可能性を開きます。
 
-| Package Manager                                           | Command        |
-| --------------------------------------------------------- | -------------- |
-| [yarn](https://yarnpkg.com/getting-started)               | `yarn install` |
-| [npm](https://docs.npmjs.com/cli/v7/commands/npm-install) | `npm install`  |
-| [pnpm](https://pnpm.io/installation)                      | `pnpm install` |
-| [bun](https://bun.sh/#getting-started)                    | `bun install`  |
+あなたのAI活用の可能性を無限に広げるDaihon。次世代のAI対話体験をぜひお試しください。
 
-After completing the installation, your environment is ready for Vuetify development.
-
-## ✨ Features
-
-- 🖼️ **Optimized Front-End Stack**: Leverage the latest Vue 3 and Vuetify 3 for a modern, reactive UI development experience. [Vue 3](https://v3.vuejs.org/) | [Vuetify 3](https://vuetifyjs.com/en/)
-- 🗃️ **State Management**: Integrated with [Pinia](https://pinia.vuejs.org/), the intuitive, modular state management solution for Vue.
-- 🚦 **Routing and Layouts**: Utilizes Vue Router for SPA navigation and vite-plugin-vue-layouts for organizing Vue file layouts. [Vue Router](https://router.vuejs.org/) | [vite-plugin-vue-layouts](https://github.com/JohnCampionJr/vite-plugin-vue-layouts)
-- 💻 **Enhanced Development Experience**: Benefit from TypeScript's static type checking and the ESLint plugin suite for Vue, ensuring code quality and consistency. [TypeScript](https://www.typescriptlang.org/) | [ESLint Plugin Vue](https://eslint.vuejs.org/)
-- ⚡ **Next-Gen Tooling**: Powered by Vite, experience fast cold starts and instant HMR (Hot Module Replacement). [Vite](https://vitejs.dev/)
-- 🧩 **Automated Component Importing**: Streamline your workflow with unplugin-vue-components, automatically importing components as you use them. [unplugin-vue-components](https://github.com/antfu/unplugin-vue-components)
-- 🛠️ **Strongly-Typed Vue**: Use vue-tsc for type-checking your Vue components, and enjoy a robust development experience. [vue-tsc](https://github.com/johnsoncodehk/volar/tree/master/packages/vue-tsc)
-
-These features are curated to provide a seamless development experience from setup to deployment, ensuring that your Vuetify application is both powerful and maintainable.
-
-## 💡 Usage
-
-This section covers how to start the development server and build your project for production.
-
-### Starting the Development Server
-
-To start the development server with hot-reload, run the following command. The server will be accessible at [http://localhost:3000](http://localhost:3000):
-
-```bash
-yarn dev
-```
-
-(Repeat for npm, pnpm, and bun with respective commands.)
-
-> Add NODE_OPTIONS='--no-warnings' to suppress the JSON import warnings that happen as part of the Vuetify import mapping. If you are on Node [v21.3.0](https://nodejs.org/en/blog/release/v21.3.0) or higher, you can change this to NODE_OPTIONS='--disable-warning=5401'. If you don't mind the warning, you can remove this from your package.json dev script.
-
-### Building for Production
-
-To build your project for production, use:
-
-```bash
-yarn build
-```
-
-(Repeat for npm, pnpm, and bun with respective commands.)
-
-Once the build process is completed, your application will be ready for deployment in a production environment.
-
-## 💪 Support Vuetify Development
-
-This project is built with [Vuetify](https://vuetifyjs.com/en/), a UI Library with a comprehensive collection of Vue components. Vuetify is an MIT licensed Open Source project that has been made possible due to the generous contributions by our [sponsors and backers](https://vuetifyjs.com/introduction/sponsors-and-backers/). If you are interested in supporting this project, please consider:
-
-- [Requesting Enterprise Support](https://support.vuetifyjs.com/)
-- [Sponsoring John on Github](https://github.com/users/johnleider/sponsorship)
-- [Sponsoring Kael on Github](https://github.com/users/kaelwd/sponsorship)
-- [Supporting the team on Open Collective](https://opencollective.com/vuetify)
-- [Becoming a sponsor on Patreon](https://www.patreon.com/vuetify)
-- [Becoming a subscriber on Tidelift](https://tidelift.com/subscription/npm/vuetify)
-- [Making a one-time donation with Paypal](https://paypal.me/vuetify)
-
-## 📑 License
-[MIT](http://opensource.org/licenses/MIT)
-
-Copyright (c) 2016-present Vuetify, LLC
+Claude、そこまで。言い過ぎだから。
