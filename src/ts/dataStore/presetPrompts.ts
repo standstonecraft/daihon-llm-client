@@ -9,55 +9,74 @@ export type PresetPrompt = {
     sortIndex: number;
 };
 
+let sidx = 0;
 /** デフォルトの設定 */
 const defaults: Omit<PresetPrompt, "id">[] = [
     {
-        name: "Rephrase and Respond",
-        prompt: "質問を言い換えて、拡張し、そして答えてください。",
+        name: "Answer Formatting",
+        prompt: "\n## 回答時の注意事項：\n",
         isOn: false,
-        sortIndex: 0
+        sortIndex: sidx++
+    },
+    {
+        name: "For Beginners",
+        prompt: "- 専門分野に全く詳しくない人でもわかるように説明すること。",
+        isOn: false,
+        sortIndex: sidx++
+    },
+    {
+        name: "Rephrase and Respond",
+        prompt: "- 回答の前に質問を言い換えて、拡張すること。",
+        isOn: false,
+        sortIndex: sidx++
     },
     {
         name: "Chain of Thoughts",
-        prompt: "段階的に考えてください。",
+        prompt: "- 段階的に考えること。",
         isOn: false,
-        sortIndex: 1
+        sortIndex: sidx++
     },
     {
         name: "Emotion Prompt",
-        prompt: "回答する前に深呼吸をして、自分を信じ限界を超えてください。",
+        prompt: "- 回答する前に深呼吸をして、自分を信じ限界を超えること。",
         isOn: false,
-        sortIndex: 2
-    },
-    {
-        name: "Translate to English",
-        prompt: "------------\n上記を英語に翻訳してください。",
-        isOn: false,
-        sortIndex: 3
+        sortIndex: sidx++
     },
     {
         name: "Markdown",
-        prompt: "Markdown形式で章立てて回答してください。",
+        prompt: "- Markdown形式で章立てて記述すること。",
         isOn: false,
-        sortIndex: 4
+        sortIndex: sidx++
     },
     {
         name: "KaTeX",
-        prompt: '計算手順として数式を記載する場合はKaTeX形式で記述してください。ブロックとして書く場合は "$$(改行)(数式)(改行)$$" のように "$$" で囲んでください。インラインで書く場合は " $(数式)$ " のように "$" で囲んで空白を開けてください。',
+        prompt: '- 計算手順として数式を記載する場合はKaTeX形式で記述すること。ブロックとして書く場合は `$$(改行)(数式)(改行)$$` のように `$$` で囲み、インラインで書く場合は ` $(数式)$ ` のように `$` で囲んで空白を開けること。',
         isOn: false,
-        sortIndex: 5
+        sortIndex: sidx++
+    },
+    {
+        name: "Summarize",
+        prompt: "ここまでの議論を要約してください。",
+        isOn: false,
+        sortIndex: sidx++
     },
     {
         name: "Self Refine",
         prompt: "今のあなたの回答をフィードバックし、その結果を考慮して回答を修正してください。",
         isOn: false,
-        sortIndex: 6
+        sortIndex: sidx++
+    },
+    {
+        name: "Translate to English",
+        prompt: "------------\n上記を英語に翻訳してください。",
+        isOn: false,
+        sortIndex: sidx++
     },
     {
         name: "Program of Thoughts",
         prompt: "答えを導き出すためのPythonのコードを出力してください。",
         isOn: false,
-        sortIndex: 7
+        sortIndex: sidx++
     },
 ];
 
@@ -102,6 +121,13 @@ const presetPromptsStore = (db: DbType) => ({
     update: (id: number, pre: UpdateSpec<InsertType<PresetPrompt, "id">>) => db.presetPrompts.update(id, pre),
 
     remove: (id: number) => db.presetPrompts.delete(id),
+
+    restore: () => {
+        db.transaction('rw', db.presetPrompts, async () => {
+            await db.presetPrompts.clear();
+            await addDefaults(db);
+        })
+    }
 })
 export default presetPromptsStore;
 
