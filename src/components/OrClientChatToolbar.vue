@@ -6,7 +6,8 @@
     </v-progress-circular>
     <v-progress-circular v-else model-value="0" class="me-auto"></v-progress-circular>
     <!-- title input -->
-    <v-text-field v-model="chatTitle" label="Title" density="comfortable" hide-details="auto" :class="titleGenClass">
+    <v-text-field v-model="chatTitle" label="Title" density="comfortable" hide-details="auto"
+      :class="chatTitle == 'Generating...' ? 'blink' : ''" :readonly="chatTitle == 'Generating...'">
       <template v-slot:append-inner>
         <v-icon icon="mdi-creation" @click="generateTitle" />
         <v-tooltip activator="parent" location="bottom">Generate Title</v-tooltip>
@@ -102,13 +103,13 @@ const titleGenClass = ref("");
 const generateTitle = async () => {
   // make loader yellow
   startChatWaiting("#ff0");
-  titleGenClass.value = "blink";
-  await askChatTitle(chatId.value)
-    .then(title => chatTitle.value = title)
+  const titleGenChatId = chatId.value;
+  store.chats.update(titleGenChatId, { title: "Generating..." });
+  await askChatTitle(titleGenChatId)
+    .then(title => store.chats.update(titleGenChatId, { title: title || "no title" }))
     .catch(error => showErrorDialog(error.message))
     .finally(() => {
       stopChatWaiting();
-      titleGenClass.value = "";
     });
 }
 </script>
