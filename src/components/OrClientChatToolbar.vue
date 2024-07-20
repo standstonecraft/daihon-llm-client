@@ -6,8 +6,7 @@
     </v-progress-circular>
     <v-progress-circular v-else model-value="0" class="me-auto"></v-progress-circular>
     <!-- title input -->
-    <v-text-field v-model="chatTitle" label="Title" density="comfortable" hide-details="auto"
-      :class="titleSuggestClass">
+    <v-text-field v-model="chatTitle" label="Title" density="comfortable" hide-details="auto" :class="titleGenClass">
       <template v-slot:append-inner>
         <v-icon icon="mdi-creation" @click="generateTitle" />
         <v-tooltip activator="parent" location="bottom">Generate Title</v-tooltip>
@@ -99,17 +98,17 @@ watch(props, async () => chatTitle.value = (await store.chats.get(chatId.value))
 watch(chatTitle, (n, o) => n != o && store.chats.update(chatId.value, { title: chatTitle.value || "no title" }));
 
 /** タイトルを提案する */
-const titleSuggestClass = ref("");
+const titleGenClass = ref("");
 const generateTitle = async () => {
   // make loader yellow
   startChatWaiting("#ff0");
-  titleSuggestClass.value = "blink";
+  titleGenClass.value = "blink";
   await askChatTitle(chatId.value)
     .then(title => chatTitle.value = title)
     .catch(error => showErrorDialog(error.message))
     .finally(() => {
       stopChatWaiting();
-      titleSuggestClass.value = "";
+      titleGenClass.value = "";
     });
 }
 </script>
