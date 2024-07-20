@@ -37,9 +37,6 @@ const configStore = (db: DbType) => ({
    * 設定をデータベースに保存します。
    *
    */
-  update: (cfg: Partial<Config>) => {
-    console.log("configStore.update", cfg);
-    get(db).then(got => db.config.put({ ...got, ...cfg }))
-  },
+  update: (cfg: Partial<Config>) => get(db).then(got => db.config.put({ ...got, ...cfg })),
 })
 export default configStore;
