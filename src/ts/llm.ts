@@ -168,18 +168,20 @@ function createContentBase(chatId: number, messageId: number, agentId: number): 
 
 function contentToMessageParam(c: ChatContent): ChatCompletionMessageParam {
   switch (c.role) {
-    case 'system':
+    case 'system': {
       const retSystem: ChatCompletionSystemMessageParam = {
         role: c.role, content: c.content,
         // name: agentName 
       };
       return retSystem;
-    case 'assistant':
+    }
+    case 'assistant': {
       const retAssistant: ChatCompletionAssistantMessageParam = {
         role: c.role, content: c.content,
         //  name: agentName
       };
       return retAssistant;
+    }
     case 'user':
       if (c.contentType === 'image_url') {
         const retUserImage: ChatCompletionUserMessageParam = {
