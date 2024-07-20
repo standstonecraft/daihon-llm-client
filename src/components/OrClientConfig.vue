@@ -5,13 +5,14 @@
       <h3>API</h3>
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
         <p>The OpenRouter API key.</p>
-        <v-text-field v-model="apiKey" label="API Key"
+        <v-text-field v-model="inputs.apiKey" label="API Key"
           placeholder="xx-xx-xx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
           hide-details></v-text-field>
       </div>
       <div class="pt-2 pl-4 d-flex ga-4 align-center">
         <span>Streaming: </span>
-        <v-switch v-model="streaming" :label="streaming ? 'ON' : 'OFF'" density="compact" hide-details></v-switch>
+        <v-switch v-model="inputs.streaming" :label="inputs.streaming ? 'ON' : 'OFF'" density="compact"
+          hide-details></v-switch>
       </div>
     </div>
     <v-divider></v-divider>
@@ -19,7 +20,7 @@
       <h3>Common Propmpt</h3>
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
         <p>The prompt that will be used at the top of each chat by all agents.</p>
-        <v-textarea v-model="commonPrompt" label="Common Prompt"></v-textarea>
+        <v-textarea v-model="inputs.commonPrompt" label="Common Prompt"></v-textarea>
       </div>
     </div>
     <v-divider></v-divider>
@@ -70,7 +71,7 @@
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
         <p>AI choose the title of the chat when you click the <v-icon>mdi-creation</v-icon> button in the chat title
           field.</p>
-        <v-text-field v-model="titleGenerationModel" label="Model Name" placeholder="anthropic/claude-3-haiku"
+        <v-text-field v-model="inputs.titleGenerationModel" label="Model Name" placeholder="anthropic/claude-3-haiku"
           hide-details type="text"></v-text-field>
       </div>
     </div>
@@ -100,29 +101,13 @@
 </style>
 <script lang="ts" setup>
 import store from '@/ts/dataStore'
+import { Config } from '@/ts/dataStore/config';
 import { PresetPrompt } from '@/ts/dataStore/presetPrompts';
 import useLiveQuery from '@/ts/withDexie';
 import draggable from 'vuedraggable'
 
-const apiKey = ref<string | undefined>("");
-watch(apiKey, (n) => {
-  store.config.update({ apiKey: n || "" });
-});
-
-const commonPrompt = ref<string | undefined>("");
-watch(commonPrompt, (n) => {
-  store.config.update({ commonPrompt: n || "" });
-});
-
-const titleGenerationModel = ref<string | undefined>("");
-watch(titleGenerationModel, (n) => {
-  store.config.update({ titleGenerationModel: n || "" });
-});
-
-const streaming = ref(false);
-watch(streaming, (n) => {
-  store.config.update({ streaming: n });
-});
+const inputs = reactive<Config>(await store.config.get());
+watch(inputs, (n) => store.config.update(n));
 
 const presetPromptsQuery = useLiveQuery<PresetPrompt[]>(async () => (await store.presetPrompts.getAll()).orderBy("sortIndex").toArray() || [], []);
 const presetPrompts = ref<PresetPrompt[]>([]);
@@ -164,15 +149,14 @@ function onListOrdered() {
   presetPrompts.value.forEach((p, i) => store.presetPrompts.update(p.id, { sortIndex: i }));
 }
 
+/**
+ * プロファイルを削除
+ */
 function deleteProfile() {
   window.confirm("Are you sure to delete the profile?") && store.reset();
 }
 
 onMounted(() => {
-  store.config.get().then(c => {
-    apiKey.value = c.apiKey;
-    commonPrompt.value = c.commonPrompt;
-    titleGenerationModel.value = c.titleGenerationModel;
-  });
+
 });
 </script>
