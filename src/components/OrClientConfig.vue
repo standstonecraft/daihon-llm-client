@@ -45,7 +45,7 @@
                   <!-- デフォルトオンチェックボックス -->
                   <template v-slot:append>
                     <v-checkbox-btn :model-value="element.isOn" @click="togglePresetIsOn(element.id)"
-                      v-tooltip="`On/Off by Default`"></v-checkbox-btn>
+                      v-tooltip="`Insert to prompt editor automatically`"></v-checkbox-btn>
                   </template>
                 </v-list-item>
               </template>
@@ -62,9 +62,13 @@
                 :disabled="editingPresetId < 0">
                 COPY
               </v-btn>
-              <v-btn @click="deletePresetPrompt(editingPresetId)" prepend-icon="$delete" variant="text" color="error"
+              <v-btn @click="deletePresetPrompt(editingPresetId)" prepend-icon="$delete" variant="text" color="warning"
                 :disabled="editingPresetId < 0">
                 DELETE
+              </v-btn>
+              <v-btn @click="restorePresetPrompt()" prepend-icon="mdi-refresh" variant="text" color="error"
+                v-tooltip="'Restore to default presets'">
+                RESTORE
               </v-btn>
             </div>
           </div>
@@ -173,6 +177,9 @@ function deletePresetPrompt(id: number) {
   if (id > -1) {
     store.presetPrompts.remove(id);
   }
+}
+function restorePresetPrompt() {
+  store.presetPrompts.restore();
 }
 function onListOrdered() {
   presetPrompts.value.forEach((p, i) => store.presetPrompts.update(p.id, { sortIndex: i }));
