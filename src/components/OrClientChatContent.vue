@@ -65,7 +65,7 @@ import markedCodeFormat from 'marked-code-format';
 import markedKatex from 'marked-katex-extension';
 
 const props = defineProps<ChatContent>();
-const emit = defineEmits<{
+defineEmits<{
   /**
    * コンテンツを編集する画面を開く
    */
@@ -104,7 +104,7 @@ const marked = new Marked()
   .use(markedCodeFormat({/* Prettier options */ }))
   .use(markedHighlight({
     langPrefix: 'hljs language-',
-    highlight(code, lang, info) {
+    highlight(code, lang /*, info*/) {
       const language = hljs.getLanguage(lang) ? lang : 'plaintext';
       return hljs.highlight(code, { language }).value;
     }

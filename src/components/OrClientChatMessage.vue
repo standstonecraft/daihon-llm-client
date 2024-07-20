@@ -22,13 +22,13 @@
             </div>
             <!-- tab -->
             <v-tabs v-model="tab" center-active show-arrows>
-              <v-tab v-for="(cont, index) in contents" :value="index" density="compact">
+              <v-tab v-for="(cont, index) in contents" :value="index" :key="index" density="compact">
                 {{ getAgentName(cont) }}
               </v-tab>
             </v-tabs>
           </template>
           <v-tabs-window v-model="tab">
-            <v-tabs-window-item v-for="(cont, index) in contents" :value="`${index}`">
+            <v-tabs-window-item v-for="(cont, index) in contents" :value="`${index}`" :key="index">
               <OrClientChatContent v-bind="cont" @edit-content="(contentId) => openContentEditDialog(contentId)"
                 @remove-content="removeContent" />
             </v-tabs-window-item>

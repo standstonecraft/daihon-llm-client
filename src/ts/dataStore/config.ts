@@ -1,4 +1,3 @@
-import { InsertType, UpdateSpec } from "dexie";
 import { type DbType } from "../dataStore";
 
 /**

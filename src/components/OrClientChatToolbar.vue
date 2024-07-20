@@ -98,8 +98,7 @@ watch(props, async () => chatTitle.value = (await store.chats.get(chatId.value))
 /** チャットタイトルが入力されたらDBに書き込む */
 watch(chatTitle, (n, o) => n != o && store.chats.update(chatId.value, { title: chatTitle.value || "no title" }));
 
-/** タイトルを提案する */
-const titleGenClass = ref("");
+/** タイトルを生成する */
 const generateTitle = async () => {
   // make loader yellow
   startChatWaiting("#ff0");
