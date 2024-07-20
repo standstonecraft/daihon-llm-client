@@ -87,14 +87,13 @@ const presetPromptsStore = (db: DbType) => ({
 
     addDefaults: async () => addDefaults(db),
 
-    add: async () => {
+    add: async (ins?: Omit<PresetPrompt, "id" | "sortIndex">) => {
         const maxSortIndex = (await db.presetPrompts.toArray() || []).map(p => p.sortIndex).reduce((a, b) => Math.max(a, b), -1);
-        return db.presetPrompts.add({
-            name: "New Prompt",
-            prompt: "New Prompt",
-            isOn: false,
-            sortIndex: maxSortIndex + 1
-        });
+        if (ins) {
+            return db.presetPrompts.add({ ...ins, sortIndex: maxSortIndex + 1 });
+        } else {
+            return db.presetPrompts.add({ name: "New Preset", prompt: "New Preset", isOn: false, sortIndex: maxSortIndex + 1 });
+        }
     },
     /**
      * 設定をデータベースに保存します。

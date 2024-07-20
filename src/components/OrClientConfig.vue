@@ -28,8 +28,8 @@
       <h3>Prompt Presets</h3>
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
         <p>Register frequently used prompts.</p>
-        <div class="d-flex ga-2">
-          <v-list max-width="350" max-height="300" class="overflow-y-auto">
+        <div class="d-flex ga-2 flex-wrap">
+          <v-list width="320" max-height="300" class="overflow-y-auto flex-1-0">
             <draggable v-model="presetPrompts" group="pp" item-key="id" handle=".draggable-handle"
               @change="onListOrdered">
               <template #item="{ element }">
@@ -51,13 +51,19 @@
               </template>
             </draggable>
           </v-list>
-          <div class="flex-1-1 d-flex flex-column ga-2">
+          <div class="flex-1-0 d-flex flex-column ga-2" min-width="400">
+            <v-text-field v-model="inputPresetName" label="Name"></v-text-field>
             <v-textarea v-model="inputPresetPrompt" label="Prompt" rows="8" counter></v-textarea>
             <div class="d-flex ga-2 justify-end">
-              <v-btn @click="addPresetPrompt" prepend-icon="$plus" variant="text" color="primary">
+              <v-btn @click="addPresetPrompt(false)" prepend-icon="$plus" variant="text" color="primary">
                 ADD
               </v-btn>
-              <v-btn @click="deletePresetPrompt(editingPresetId)" prepend-icon="$delete" variant="text" color="error">
+              <v-btn @click="addPresetPrompt(true)" prepend-icon="mdi-content-copy" variant="text" color="secondary"
+                :disabled="editingPresetId < 0">
+                COPY
+              </v-btn>
+              <v-btn @click="deletePresetPrompt(editingPresetId)" prepend-icon="$delete" variant="text" color="error"
+                :disabled="editingPresetId < 0">
                 DELETE
               </v-btn>
             </div>
@@ -109,26 +115,41 @@ import draggable from 'vuedraggable'
 const inputs = reactive<Config>(await store.config.get());
 watch(inputs, (n) => store.config.update(n));
 
+/*
+ * Prompt Presets
+ */
 const presetPromptsQuery = useLiveQuery<PresetPrompt[]>(async () => (await store.presetPrompts.getAll()).orderBy("sortIndex").toArray() || [], []);
 const presetPrompts = ref<PresetPrompt[]>([]);
 watch(presetPromptsQuery, (n) => {
   presetPrompts.value = n;
 });
+/** プリセット名テキストフィールド */
+const inputPresetName = ref("");
+/** プリセットテキストエリア */
+const inputPresetPrompt = ref("");
+/** 編集中のPreset ID */
 const editingPresetId = ref(-1);
+/** 編集中のPreset */
 const editingPreset = computed(() => presetPrompts.value?.find(p => p.id === editingPresetId.value));
+/** 編集中フラグ */
 const editingPresetSwitching = ref(false);
 watch(editingPreset, (n) => {
   editingPresetSwitching.value = true;
   if (n) {
+    inputPresetName.value = n.name;
     inputPresetPrompt.value = n.prompt;
   } else {
+    inputPresetName.value = "";
     inputPresetPrompt.value = "";
   }
   // editingPresetPrompt への伝播を済ませるために nextTick() で待つ
   nextTick(() => editingPresetSwitching.value = false);
 });
-/** プリセットテキストエリア */
-const inputPresetPrompt = ref("");
+watch(inputPresetName, (n) => {
+  // 選択によってeditingPresetIdが変わった場合は変更とみなさない
+  if (editingPresetSwitching.value) return;
+  store.presetPrompts.update(editingPresetId.value, { name: n });
+});
 watch(inputPresetPrompt, (n) => {
   // 選択によってeditingPresetIdが変わった場合は変更とみなさない
   if (editingPresetSwitching.value) return;
@@ -137,8 +158,16 @@ watch(inputPresetPrompt, (n) => {
 async function togglePresetIsOn(id: number) {
   store.presetPrompts.update(id, { isOn: !(await store.presetPrompts.get(id))?.isOn });
 }
-function addPresetPrompt() {
-  store.presetPrompts.add();
+function addPresetPrompt(copy: boolean) {
+  if (copy) {
+    store.presetPrompts.add({
+      name: inputPresetName.value,
+      prompt: inputPresetPrompt.value,
+      isOn: false
+    });
+  } else {
+    store.presetPrompts.add();
+  }
 }
 function deletePresetPrompt(id: number) {
   if (id > -1) {
