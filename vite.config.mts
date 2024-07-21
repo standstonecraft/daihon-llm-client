@@ -72,4 +72,5 @@ export default defineConfig({
     host: '0.0.0.0', // need for dev container
     port: 3000,
   },
+  base: '/daihon-llm-client-web/',
 })
