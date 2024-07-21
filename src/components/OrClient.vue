@@ -17,34 +17,58 @@
       :location="mobile ? 'bottom' : undefined">
       <v-list-item class="py-4">
         <template v-slot:prepend>
-          <v-img src="@/assets/logo.svg" :width="24"></v-img>
+          <v-img src="@/assets/logo.svg" :width="24" @click="rail = !rail"></v-img>
+          <v-tooltip activator="parent" v-if="rail">Daihon</v-tooltip>
         </template>
         <template v-slot:title>
           <span class="text-h6 font-weight-bold ml-2">Daihon</span>
         </template>
       </v-list-item>
       <v-list nav>
-        <v-list-item value="chat" title="Chat" @click="clickTab('chat')" :active="tab === 'chat'"
-          prepend-icon="mdi-message-text"></v-list-item>
-        <v-list-item value="agents" title="Agents" @click="clickTab('agents')" :active="tab === 'agents'"
-          prepend-icon="mdi-account-tie"></v-list-item>
-        <v-list-item value="config" title="Config" @click="clickTab('config')" :active="tab === 'config'"
-          prepend-icon="mdi-cog"></v-list-item>
+        <v-list-item value="chat" title="Chat" @click="clickTab('chat')" :active="tab === 'chat'">
+          <template v-slot:prepend>
+            <v-icon>mdi-message-text</v-icon>
+            <v-tooltip activator="parent" v-if="rail">Chat</v-tooltip>
+          </template>
+        </v-list-item>
+        <v-list-item value="agents" title="Agents" @click="clickTab('agents')" :active="tab === 'agents'">
+          <template v-slot:prepend>
+            <v-icon>mdi-account-tie</v-icon>
+            <v-tooltip activator="parent" v-if="rail">Agents</v-tooltip>
+          </template>
+        </v-list-item>
+        <v-list-item value="config" title="Config" @click="clickTab('config')" :active="tab === 'config'">
+          <template v-slot:prepend>
+            <v-icon>mdi-cog</v-icon>
+            <v-tooltip activator="parent" v-if="rail">Config</v-tooltip>
+          </template>
+        </v-list-item>
       </v-list>
+      <!-- メニュー下部 -->
       <template v-slot:append>
-
         <v-divider></v-divider>
         <v-list density="compact" nav>
-          <v-list-item :prepend-icon="rail ? 'mdi-chevron-double-right' : 'mdi-chevron-double-left'" title="Collapse"
-            @click="rail = !rail"></v-list-item>
+          <v-list-item title="Collapse" @click="rail = !rail">
+            <template v-slot:prepend>
+              <v-icon>{{ rail ? 'mdi-chevron-double-right' : 'mdi-chevron-double-left' }}</v-icon>
+              <v-tooltip activator="parent" v-if="rail">Expand</v-tooltip>
+            </template>
+          </v-list-item>
           <v-list-item title="OpenRouter" @click="openOpenRouter">
             <template v-slot:prepend>
               <v-img :width="24" cover src="@/assets/open-router.png"></v-img>
+              <v-tooltip activator="parent" v-if="rail">OpenRouter</v-tooltip>
             </template>
           </v-list-item>
           <v-list-item title="Theme" @click="setTheme(!isDarkTheme)">
             <template v-slot:prepend>
               <v-icon>mdi-brightness-6</v-icon>
+              <v-tooltip activator="parent" v-if="rail">Theme</v-tooltip>
+            </template>
+          </v-list-item>
+          <v-list-item subtitle="ver: 1.0.0">
+            <template v-slot:subtitle>
+              <span v-show="!rail">ver: 1.0.0</span>
             </template>
           </v-list-item>
         </v-list>
