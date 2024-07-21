@@ -62,7 +62,7 @@ const defaults: Omit<PresetPrompt, "id">[] = [
     },
     {
         name: "Draw a Decision ",
-        prompt: "これらの回答を統合して、最終的な回答を出してください。",
+        prompt: "これらの回答を総合的に評価し、最終的な回答を出してください。",
         isOn: false,
         sortIndex: sidx++
     },
