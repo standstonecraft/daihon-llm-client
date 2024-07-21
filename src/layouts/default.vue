@@ -1,10 +1,6 @@
 <template>
   <v-app max-height="100vh">
-    <v-main>
-      <router-view />
-    </v-main>
-
-    <!-- <AppFooter /> -->
+    <router-view />
   </v-app>
 </template>
 

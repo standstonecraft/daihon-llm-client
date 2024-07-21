@@ -1,18 +1,17 @@
 <template>
-  <v-app-bar density="compact" elevation="2" v-if="mobile">
-    <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-    <v-app-bar-title>
-
-      <div class="d-flex align-center ga-2">
-
-        <v-img src="@/assets/logo.svg" width="24" max-width="24"></v-img>
-        <span>Daihon</span>
-
-      </div>
-    </v-app-bar-title>
-  </v-app-bar>
-  <!-- v-layout ドロワーの座標維持の為必須 -->
   <v-layout class="fill-height fill-width">
+    <v-app-bar density="compact" elevation="2" v-if="mobile">
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-title>
+
+        <div class="d-flex align-center ga-2">
+
+          <v-img src="@/assets/logo.svg" width="24" max-width="24"></v-img>
+          <span>Daihon</span>
+
+        </div>
+      </v-app-bar-title>
+    </v-app-bar>
     <!-- メニュー -->
     <v-navigation-drawer v-model="drawer" :rail="rail" class="custom-drawer" width="150" mobile-breakpoint="sm"
       :location="mobile ? 'bottom' : undefined">
@@ -56,7 +55,6 @@
       <OrClientAgentList v-if="tab === 'agents'" />
       <OrClientConfig v-if="tab === 'config'" />
     </v-main>
-
 
     <!-- dialog -->
     <v-dialog v-model="errorDialog" width="auto" @close="errorDialog = false; errorDialogText = ''">
