@@ -36,6 +36,7 @@ export async function requestOpenRouter(chatId: number, messageId: number, agent
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: config.apiKey,
       defaultHeaders: {
+        "HTTP-Referer": "https://github.com/standstonecraft/daihon-llm-client",
         "X-Title": "Daihon LLM Client", // App name
       },
       dangerouslyAllowBrowser: true,
@@ -288,6 +289,7 @@ export async function askChatTitle(chatId: number) {
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: config.apiKey,
       defaultHeaders: {
+        "HTTP-Referer": "https://github.com/standstonecraft/daihon-llm-client",
         "X-Title": "Daihon LLM Client", // App name
       },
       dangerouslyAllowBrowser: true,
