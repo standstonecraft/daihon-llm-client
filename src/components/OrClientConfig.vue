@@ -90,12 +90,12 @@
       <h3>Profile</h3>
       <div class="pt-2 pl-4 d-flex flex-column ga-2">
         <div class="d-flex ga-4">
-          <v-btn @click="store.upload" prepend-icon="mdi-upload" variant="text" color="primary">
+          <!-- <v-btn @click="store.upload" prepend-icon="mdi-upload" variant="text" color="primary">
             UPLOAD
           </v-btn>
           <v-btn @click="store.download" prepend-icon="mdi-upload" variant="text" color="primary">
             DOWNLOAD
-          </v-btn>
+          </v-btn> -->
           <v-btn @click="deleteProfile" prepend-icon="$delete" variant="outlined" color="error">
             DELETE
           </v-btn>
