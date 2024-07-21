@@ -61,6 +61,12 @@ const defaults: Omit<PresetPrompt, "id">[] = [
         sortIndex: sidx++
     },
     {
+        name: "Draw a Decision ",
+        prompt: "これらの回答を統合して、最終的な回答を出してください。",
+        isOn: false,
+        sortIndex: sidx++
+    },
+    {
         name: "Self Refine",
         prompt: "今のあなたの回答をフィードバックし、その結果を考慮して回答を修正してください。",
         isOn: false,

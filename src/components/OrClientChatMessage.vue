@@ -14,9 +14,6 @@
           <template v-if="contents.length > 1">
             <!-- buttons -->
             <div class="d-flex justify-end ga-4 px-2 pt-2 border-b-1">
-              <v-btn icon="mdi-gavel" @click="synthesize" color="warning" variant="text" density="compact"
-                v-tooltip="'Synthesize'">
-              </v-btn>
               <v-btn icon="mdi-close" @click="removeMessage" variant="text" density="compact" v-tooltip="'Delete All'">
               </v-btn>
             </div>
@@ -92,28 +89,6 @@ async function removeContent(contentId: number) {
 function removeMessage() {
   store.messages.remove(props.messageId);
   [...contents.value].forEach(content => store.contents.remove(content.id));
-}
-
-/**
- * 意見集約を指示するメッセージを追加する
- */
-function synthesize() {
-  store.messages.add({
-    chatId: props.chatId,
-    createdAt: new Date().toISOString(),
-  })
-    .then(newMessageId => store.contents.add({
-      chatId: props.chatId,
-      messageId: newMessageId,
-      agentId: -1,
-      role: "user",
-      content: `${contents.value.length}人の回答を統合して最終的な回答を出してください。`,
-      contentType: "text",
-      contentImage: "",
-      createdAt: new Date().toISOString(),
-      enabled: true,
-      invalid: []
-    }));
 }
 
 /*
