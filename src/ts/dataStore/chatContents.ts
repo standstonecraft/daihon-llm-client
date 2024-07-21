@@ -5,16 +5,27 @@ import { type DbType } from "../dataStore";
  * 会話コンテンツ
  */
 export type ChatContent = {
+  /** ID */
   id: number;
+  /** チャットID */
   chatId: number;
+  /** メッセージID */
   messageId: number;
+  /** エージェントID */
   agentId: number;
+  /** ロール */
   role: "assistant" | "user" | "system";
+  /** コンテンツタイプ */
   contentType: "text" | "image_url";
+  /** 本文 */
   content: string;
+  /** 画像 */
   contentImage: string;
+  /** 有効 */
   enabled: boolean;
+  /** 作成日時 */
   createdAt: string;
+  /** バリデーション結果 */
   invalid: { name: string, message: string }[];
 }
 

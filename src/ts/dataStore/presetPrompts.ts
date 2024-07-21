@@ -2,10 +2,15 @@ import { InsertType, UpdateSpec } from "dexie";
 import { type DbType } from "../dataStore";
 
 export type PresetPrompt = {
+    /** ID */
     id: number;
+    /** 名前 */
     name: string;
+    /** プロンプト */
     prompt: string;
+    /** 有効化フラグ */
     isOn: boolean;
+    /** ソートインデックス */
     sortIndex: number;
 };
 

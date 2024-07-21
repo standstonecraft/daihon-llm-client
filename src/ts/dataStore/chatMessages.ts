@@ -4,8 +4,11 @@ import { type DbType } from "../dataStore";
  * 会話メッセージ
  */
 export type ChatMessage = {
+  /** メッセージID */
   id: number;
+  /** チャットID */
   chatId: number;
+  /** 作成日時 */
   createdAt: string;
 }
 

@@ -4,11 +4,17 @@ import { type DbType } from "../dataStore";
  * 設定情報
  */
 export type Config = {
+  /** 設定ID 0固定 */
   id: number;
+  /** APIキー */
   apiKey: string;
+  /** 共通プロンプト */
   commonPrompt: string;
+  /** ダークテーマ */
   darkTheme?: boolean;
+  /** ストリーミング */
   streaming: boolean;
+  /** タイトル生成モデル */
   titleGenerationModel: string;
 }
 const CONFIG_ID = 0;
