@@ -25,22 +25,11 @@
         </template>
       </v-list-item>
       <v-list nav>
-        <v-list-item value="chat" title="Chat" @click="clickTab('chat')" :active="tab === 'chat'">
+        <v-list-item v-for="menu in menus" :key="menu.name" :value="menu.name" :title="menu.name"
+          @click="clickTab(menu.name)" :active="tab === menu.name">
           <template v-slot:prepend>
-            <v-icon>mdi-message-text</v-icon>
-            <v-tooltip activator="parent" v-if="rail">Chat</v-tooltip>
-          </template>
-        </v-list-item>
-        <v-list-item value="agents" title="Agents" @click="clickTab('agents')" :active="tab === 'agents'">
-          <template v-slot:prepend>
-            <v-icon>mdi-account-tie</v-icon>
-            <v-tooltip activator="parent" v-if="rail">Agents</v-tooltip>
-          </template>
-        </v-list-item>
-        <v-list-item value="config" title="Config" @click="clickTab('config')" :active="tab === 'config'">
-          <template v-slot:prepend>
-            <v-icon>mdi-cog</v-icon>
-            <v-tooltip activator="parent" v-if="rail">Config</v-tooltip>
+            <v-icon>{{ menu.icon }}</v-icon>
+            <v-tooltip activator="parent" v-if="rail">{{ menu.name }}</v-tooltip>
           </template>
         </v-list-item>
       </v-list>
@@ -75,9 +64,10 @@
       </template>
     </v-navigation-drawer>
     <v-main max-height="100vh" style="overflow-y: auto;">
-      <OrClientChat v-model="chatDrawer" v-if="tab === 'chat'" />
-      <OrClientAgentList v-if="tab === 'agents'" />
-      <OrClientConfig v-if="tab === 'config'" />
+      <OrClientChat v-model="chatDrawer" v-if="tab === 'Chat'" />
+      <OrClientAgentList v-if="tab === 'Agents'" />
+      <OrClientConfig v-if="tab === 'Config'" />
+      <OrClientHelp v-if="tab === 'Help'" />
     </v-main>
 
     <!-- dialog -->
@@ -114,10 +104,17 @@ provide(injectionKeys.OrClient.showErrorDialog, showErrorDialog);
 
 const { xs: mobile } = useDisplay();
 
+type MenuType = "Chat" | "Agents" | "Config" | "Help";
+
 // 変数
 /** 開いているページ */
-const tab = ref<"chat" | "agents" | "config">("chat");
-
+const tab = ref<MenuType>("Chat");
+const menus: { name: MenuType; icon: string }[] = [
+  { name: "Chat", icon: "mdi-message-text" },
+  { name: "Agents", icon: "mdi-account-tie" },
+  { name: "Config", icon: "mdi-cog" },
+  { name: "Help", icon: "mdi-help-circle" },
+]
 /*
  * ドロワー
  */
@@ -127,11 +124,11 @@ const drawer = ref(true);
 const rail = ref(false);
 /** チャットドロワー展開 */
 const chatDrawer = ref(true);
-function clickTab(tabName: "chat" | "agents" | "config") {
+function clickTab(tabName: MenuType) {
   if (mobile.value) {
     drawer.value = false;
   }
-  if (tabName === "chat") {
+  if (tabName === "Chat") {
     chatDrawer.value = !chatDrawer.value;
   } else {
     chatDrawer.value = false;
