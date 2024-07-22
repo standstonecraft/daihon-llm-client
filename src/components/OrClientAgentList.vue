@@ -28,6 +28,7 @@ function addAgent() {
     image: "",
     systemPrompt: "",
     isDeleted: false,
+    isPinned: false
   });
 }
 </script>

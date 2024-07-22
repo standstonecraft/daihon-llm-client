@@ -113,4 +113,14 @@ const generateTitle = async () => {
       stopChatWaiting();
     });
 }
+
+onMounted(async () => {
+  // エージェントが未選択の場合、ピン留めされたエージェントを探して選択する
+  if (selectedAgentIds.value.length == 0) {
+    const pinnedAgents = (await store.agents.getAll().toArray()).filter(x => x.isPinned);
+    if (pinnedAgents.length > 0) {
+      selectedAgentIds.value = pinnedAgents.map(x => x.id);
+    }
+  }
+});
 </script>

@@ -11,6 +11,10 @@
         auto-grow class="">
       </v-textarea>
       <div class="d-flex justify-end ga-2">
+        <v-btn @click="store.agents.pin(inputs.id)" :text="inputs.isPinned ? 'PINNED' : 'PIN'"
+          :prepend-icon="inputs.isPinned ? 'mdi-pin' : 'mdi-pin-outline'" :active="inputs.isPinned" variant="text"
+          color="secondary">
+        </v-btn>
         <v-btn @click="store.agents.remove(inputs.id)" prepend-icon="$delete" variant="text" color="error">
           DELETE
         </v-btn>
@@ -30,4 +34,5 @@ const props = defineProps<Agent>();
  */
 const inputs = reactive<Agent>({ ...props });
 watch(inputs, ((n) => store.agents.update(n.id, n)));
+watch(props, ((n) => Object.assign(inputs, n)));
 </script>
