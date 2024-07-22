@@ -113,8 +113,20 @@ async function sendChat(chatId: number, agentIds?: number[]) {
     startChatWaiting(agentIds.length > 1 ? "#ad6eed" : undefined);
     try {
       await requestOpenRouter(chatId, messageId, agentId);
-    } finally {
+    } catch (error) {
+      // Error 型の場合はllm.tsでメッセージ処理されている
+      console.error(error);
+      if (error instanceof Error) {
+        showErrorDialog("unexpected error");
+      }
+    }
+    finally {
       stopChatWaiting();
+      // コンテンツをメッセージIDで検索してコンテンツが1つもなかったらメッセージを消す
+      const contents = await store.contents.getAll().where("messageId").equals(messageId).toArray();
+      if (contents.length == 0) {
+        store.messages.remove(messageId);
+      }
     }
   }));
 }

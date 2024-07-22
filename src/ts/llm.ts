@@ -81,6 +81,10 @@ export async function requestOpenRouter(chatId: number, messageId: number, agent
           }
         }
       }
+      if (contentId < 0) {
+        // error
+        throw new Error("Streaming error. Perhaps you sent an image to non-supported model.");
+      }
     } else {
       // Handle non-streaming completion
       if (Object.hasOwn(completion, "error")) {
