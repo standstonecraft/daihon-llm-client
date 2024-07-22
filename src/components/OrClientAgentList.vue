@@ -27,6 +27,7 @@ function addAgent() {
     name: "Agent " + new Date().toUTCString(),
     image: "",
     systemPrompt: "",
+    isDeleted: false,
   });
 }
 </script>
