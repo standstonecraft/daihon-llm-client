@@ -60,7 +60,7 @@ async function explore() {
       {
         description: "画像ファイル",
         accept: {
-          "image/*": [".png", ".jpg", ".jpeg"],
+          "image/*": [".png", ".jpg", ".jpeg", ".webp"],
         },
       },
     ],
