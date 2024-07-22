@@ -15,7 +15,7 @@ import store from '@/ts/dataStore';
 import { Agent } from '@/ts/dataStore/agents';
 import useLiveQuery from "@/ts/withDexie";
 
-const agents = useLiveQuery<Agent[]>(() => store.agents.getAll().toArray() || [], []);
+const agents = useLiveQuery<Agent[]>(async () => (await store.agents.getAll().toArray()).filter(x => !x.isDeleted) || [], []);
 
 /**
  * 新しいエージェントを追加
