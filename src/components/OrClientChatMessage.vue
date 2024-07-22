@@ -62,7 +62,7 @@ const isUser = computed(() => contents.value[0]?.role == "user");
 
 const agentDic = useLiveQuery<Map<number, Agent>>(() =>
   store.agents.getAll().toArray().then(arr =>
-    new Map<number, Agent>(arr.map(agent => [agent.id, agent]) ?? [])), []);
+    new Map<number, Agent>(arr.filter(a => !a.isDeleted).map(agent => [agent.id, agent]) ?? [])), []);
 /**
  * エージェント名を取得
  */

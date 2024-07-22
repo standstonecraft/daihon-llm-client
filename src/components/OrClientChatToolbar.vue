@@ -63,8 +63,10 @@ const props = defineProps<{
 /** 選択されたエージェントID */
 const selectedAgentIds = defineModel<number[]>("selectedAgentIds", { required: true, default: [] });
 /** エージェントリスト v-selectに最適な形にマッピング */
-const agents = useLiveQuery(() => store.agents.getAll().toArray()
-  .then(ags => ags.map(a => ({ title: a.name, value: a.id, subtitle: a.model }))) || [], []);
+const agents = useLiveQuery(async () => (await store.agents.getAll().toArray())
+  .filter(x => !x.isDeleted)
+  .map(a => ({ title: a.name, value: a.id, subtitle: a.model }))
+  || [], []);
 /** 全エージェントが選択されている */
 const allAgentSelected = computed(() => {
   return selectedAgentIds.value.length === agents.value.length

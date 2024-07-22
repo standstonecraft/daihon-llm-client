@@ -77,7 +77,7 @@ const emit = defineEmits<{
   /** 送信要求 */
   send: []
 }>();
-const agents = useLiveQuery<Agent[]>(() => store.agents.getAll().toArray() || [], []);
+const agents = useLiveQuery<Agent[]>(async () => (await store.agents.getAll().toArray()).filter(x => !x.isDeleted) || [], []);
 const agentList = computed(() => [{ id: -1, name: "You" } as Agent, ...agents.value ?? []]);
 const roles = ["user", "system", "assistant"];
 
