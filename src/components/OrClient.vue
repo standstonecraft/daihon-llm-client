@@ -55,9 +55,10 @@
               <v-tooltip activator="parent" v-if="rail">Theme</v-tooltip>
             </template>
           </v-list-item>
-          <v-list-item>
-            <template v-slot:subtitle>
-              <span v-show="!rail">ver: {{ appVersion }}</span>
+          <v-list-item title="GitHub" :subtitle="appVersion" @click="openHomepage">
+            <template v-slot:prepend>
+              <v-icon>mdi-github</v-icon>
+              <v-tooltip activator="parent" v-if="rail">GitHub</v-tooltip>
             </template>
           </v-list-item>
         </v-list>
@@ -98,6 +99,7 @@ import { injectionKeys } from './injectionSymbols';
 
 const appShortName = import.meta.env.VITE_SHORT_NAME;
 const appVersion = import.meta.env.VITE_VERSION;
+const appHomepage = import.meta.env.VITE_HOMEPAGE;
 
 // provide
 provide(injectionKeys.OrClient.showErrorDialog, showErrorDialog);
@@ -146,6 +148,12 @@ watch(mobile, () => {
  */
 function openOpenRouter() {
   window.open("https://openrouter.ai/", "_blank");
+}
+/**
+ * GitHub リポジトリを開く
+ */
+function openHomepage() {
+  window.open(appHomepage, "_blank");
 }
 
 /*
