@@ -36,8 +36,8 @@ export async function requestOpenRouter(chatId: number, messageId: number, agent
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: config.apiKey,
       defaultHeaders: {
-        "HTTP-Referer": "https://github.com/standstonecraft/daihon-llm-client",
-        "X-Title": "Daihon LLM Client", // App name
+        "HTTP-Referer": import.meta.env.VITE_HOMEPAGE,
+        "X-Title": import.meta.env.VITE_NAME, // App name
       },
       dangerouslyAllowBrowser: true,
     });
@@ -289,8 +289,8 @@ export async function askChatTitle(chatId: number) {
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: config.apiKey,
       defaultHeaders: {
-        "HTTP-Referer": "https://github.com/standstonecraft/daihon-llm-client",
-        "X-Title": "Daihon LLM Client", // App name
+        "HTTP-Referer": import.meta.env.VITE_HOMEPAGE,
+        "X-Title": import.meta.env.VITE_NAME, // App name
       },
       dangerouslyAllowBrowser: true,
     });

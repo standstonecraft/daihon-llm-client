@@ -7,7 +7,7 @@
         <div class="d-flex align-center ga-2">
 
           <v-img src="@/assets/logo.svg" width="24" max-width="24"></v-img>
-          <span>Daihon</span>
+          <span>{{ appShortName }}</span>
 
         </div>
       </v-app-bar-title>
@@ -18,7 +18,7 @@
       <v-list-item class="py-4">
         <template v-slot:prepend>
           <v-img src="@/assets/logo.svg" :width="24" @click="rail = !rail"></v-img>
-          <v-tooltip activator="parent" v-if="rail">Daihon</v-tooltip>
+          <v-tooltip activator="parent" v-if="rail">{{ appShortName }}</v-tooltip>
         </template>
         <template v-slot:title>
           <span class="text-h6 font-weight-bold ml-2">Daihon</span>
@@ -66,9 +66,9 @@
               <v-tooltip activator="parent" v-if="rail">Theme</v-tooltip>
             </template>
           </v-list-item>
-          <v-list-item subtitle="ver: 1.0.0">
+          <v-list-item>
             <template v-slot:subtitle>
-              <span v-show="!rail">ver: 1.0.0</span>
+              <span v-show="!rail">ver: {{ appVersion }}</span>
             </template>
           </v-list-item>
         </v-list>
@@ -105,6 +105,9 @@
 import { useTheme, useDisplay } from 'vuetify'
 import store from "@/ts/dataStore";
 import { injectionKeys } from './injectionSymbols';
+
+const appShortName = import.meta.env.VITE_SHORT_NAME;
+const appVersion = import.meta.env.VITE_VERSION;
 
 // provide
 provide(injectionKeys.OrClient.showErrorDialog, showErrorDialog);
