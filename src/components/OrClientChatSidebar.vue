@@ -31,7 +31,7 @@
 
 </template>
 
-<style>
+<style scoped>
 .chat-sheet-item .chat-sheet-delete {
   display: none;
 }

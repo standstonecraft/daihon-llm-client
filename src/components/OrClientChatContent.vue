@@ -43,7 +43,7 @@
     </v-btn>
   </div>
 </template>
-<style>
+<style scoped>
 pre {
   border: 1px solid gray;
 }
