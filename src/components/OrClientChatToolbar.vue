@@ -5,18 +5,19 @@
       <template v-slot:default> {{ chatWaiting.length || '' }}</template>
     </v-progress-circular>
     <v-progress-circular v-else model-value="0" class="mr-2" size="28"></v-progress-circular>
-    <div class="d-flex ga-2 align-center flex-wrap">
+    <!-- title and agents -->
+    <div class="d-flex ga-3 align-center flex-wrap">
       <!-- title input -->
       <v-text-field v-model="chatTitle" label="Title" density="compact" hide-details="auto" variant="plain"
-        min-width="300" :class="chatTitle == 'Generating...' ? 'blink' : ''" :readonly="chatTitle == 'Generating...'">
+        min-width="400" :class="chatTitle == 'Generating...' ? 'blink' : ''" :readonly="chatTitle == 'Generating...'">
         <template v-slot:append-inner>
           <v-icon icon="mdi-creation" @click="generateTitle" />
           <v-tooltip activator="parent" location="bottom">Generate Title</v-tooltip>
         </template>
       </v-text-field>
       <!-- agent select -->
-      <v-select v-model="selectedAgentIds" :items="agents" :item-props="true" multiple chips label="Agent"
-        variant="plain" min-width="300" density="compact" hide-details="auto">
+      <v-select v-model="selectedAgentIds" :items="agents" :item-props="true" multiple label="Agent" variant="plain"
+        min-width="400" density="compact" hide-details="auto">
         <template v-slot:prepend-item>
           <v-list-item title="Select All" @click="toggleSelectAllAgent">
             <template v-slot:prepend>
@@ -25,6 +26,14 @@
             </template>
           </v-list-item>
           <v-divider class="mt-2"></v-divider>
+        </template>
+        <template v-slot:selection="{ item, index }">
+          <v-chip v-if="index < 3">
+            <span>{{ item.title }}</span>
+          </v-chip>
+          <span v-if="index === 3" class="text-grey text-caption align-self-center">
+            (+{{ selectedAgentIds.length - 3 }})
+          </span>
         </template>
       </v-select>
     </div>

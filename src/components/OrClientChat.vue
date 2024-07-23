@@ -18,10 +18,12 @@
         <div ref="listBottom" style="height: 20px;"></div>
       </div>
       <v-divider></v-divider>
+      <!-- footer -->
       <v-footer app color="background" class="d-flex justify-end ga-2 align-stretch px-3 pa-1">
         <!-- add message button -->
         <v-btn v-if="selectedChatId > -1" @click="addContent" variant="elevated">
           <v-icon>$plus</v-icon>
+          <v-tooltip activator="parent" location="bottom">Add Message</v-tooltip>
         </v-btn>
         <!-- send button -->
         <v-btn @click="sendChat(chatId, selectedAgentIds)" variant="elevated">
