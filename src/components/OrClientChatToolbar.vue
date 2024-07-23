@@ -1,18 +1,33 @@
 <template>
-  <div class="d-flex justify-end ga-2 align-center px-3 py-2">
+  <div class="d-flex ga-2 align-center px-3 py-2">
     <!-- loader -->
-    <v-progress-circular v-if="chatWaiting.length > 0" :color="waitingColor" indeterminate class="me-auto" size="28">
+    <v-progress-circular v-if="chatWaiting.length > 0" :color="waitingColor" indeterminate class="mr-2" size="28">
       <template v-slot:default> {{ chatWaiting.length || '' }}</template>
     </v-progress-circular>
-    <v-progress-circular v-else model-value="0" class="me-auto" size="28"></v-progress-circular>
-    <!-- title input -->
-    <v-text-field v-model="chatTitle" aria-label="Title" prefix="Title:" density="compact" hide-details="auto"
-      variant="plain" :class="chatTitle == 'Generating...' ? 'blink' : ''" :readonly="chatTitle == 'Generating...'">
-      <template v-slot:append-inner>
-        <v-icon icon="mdi-creation" @click="generateTitle" />
-        <v-tooltip activator="parent" location="bottom">Generate Title</v-tooltip>
-      </template>
-    </v-text-field>
+    <v-progress-circular v-else model-value="0" class="mr-2" size="28"></v-progress-circular>
+    <div class="d-flex ga-2 align-center flex-wrap">
+      <!-- title input -->
+      <v-text-field v-model="chatTitle" label="Title" density="compact" hide-details="auto" variant="plain"
+        min-width="300" :class="chatTitle == 'Generating...' ? 'blink' : ''" :readonly="chatTitle == 'Generating...'">
+        <template v-slot:append-inner>
+          <v-icon icon="mdi-creation" @click="generateTitle" />
+          <v-tooltip activator="parent" location="bottom">Generate Title</v-tooltip>
+        </template>
+      </v-text-field>
+      <!-- agent select -->
+      <v-select v-model="selectedAgentIds" :items="agents" :item-props="true" multiple chips label="Agent"
+        variant="plain" min-width="300" density="compact" hide-details="auto">
+        <template v-slot:prepend-item>
+          <v-list-item title="Select All" @click="toggleSelectAllAgent">
+            <template v-slot:prepend>
+              <v-checkbox-btn :indeterminate="someAgentSelected && !allAgentSelected"
+                :model-value="allAgentSelected"></v-checkbox-btn>
+            </template>
+          </v-list-item>
+          <v-divider class="mt-2"></v-divider>
+        </template>
+      </v-select>
+    </div>
   </div>
 </template>
 
@@ -20,6 +35,7 @@
 import store from '@/ts/dataStore';
 import { askChatTitle } from '@/ts/llm';
 import { injectionKeys } from './injectionSymbols';
+import useLiveQuery from "@/ts/withDexie";
 
 /** inject エラーメッセージ表示 */
 const showErrorDialog = inject(injectionKeys.OrClient.showErrorDialog) || (() => { throw new Error("showErrorDialogKey is not defined") });
@@ -64,4 +80,41 @@ const generateTitle = async () => {
       stopChatWaiting();
     });
 }
+
+/* 
+ * エージェント選択
+ */
+/** 選択されたエージェントID */
+const selectedAgentIds = defineModel<number[]>({ required: true, default: [] });
+/** エージェントリスト v-selectに最適な形にマッピング */
+const agents = useLiveQuery(async () => (await store.agents.getAll().toArray())
+  .filter(x => !x.isDeleted)
+  .map(a => ({ title: a.name, value: a.id, subtitle: a.model }))
+  || [], []);
+/** 全エージェントが選択されている */
+const allAgentSelected = computed(() => {
+  return selectedAgentIds.value.length === agents.value.length
+});
+/** 一部のエージェントが選択されている */
+const someAgentSelected = computed(() => {
+  return selectedAgentIds.value.length > 0
+});
+/** エージェント全選択/解除 */
+function toggleSelectAllAgent() {
+  if (allAgentSelected.value) {
+    selectedAgentIds.value = [];
+  } else {
+    selectedAgentIds.value = agents.value.map(x => x.value);
+  }
+}
+
+onMounted(async () => {
+  // エージェントが未選択の場合、ピン留めされたエージェントを探して選択する
+  if (selectedAgentIds.value.length == 0) {
+    const pinnedAgents = (await store.agents.getAll().toArray()).filter(x => x.isPinned);
+    if (pinnedAgents.length > 0) {
+      selectedAgentIds.value = pinnedAgents.map(x => x.id);
+    }
+  }
+});
 </script>

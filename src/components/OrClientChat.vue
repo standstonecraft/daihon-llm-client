@@ -19,19 +19,6 @@
       </div>
       <v-divider></v-divider>
       <v-footer app color="background" class="d-flex justify-end ga-2 align-stretch px-3 pa-1">
-        <!-- agent select -->
-        <v-select v-model="selectedAgentIds" :items="agents" :item-props="true" multiple chips aria-label="Agent"
-          prepend-icon="mdi-account-tie" variant="plain" density="compact" hide-details="auto">
-          <template v-slot:prepend-item>
-            <v-list-item title="Select All" @click="toggleSelectAllAgent">
-              <template v-slot:prepend>
-                <v-checkbox-btn :indeterminate="someAgentSelected && !allAgentSelected"
-                  :model-value="allAgentSelected"></v-checkbox-btn>
-              </template>
-            </v-list-item>
-            <v-divider class="mt-2"></v-divider>
-          </template>
-        </v-select>
         <!-- add message button -->
         <v-btn v-if="selectedChatId > -1" @click="addContent" variant="elevated">
           <v-icon>$plus</v-icon>
@@ -71,7 +58,8 @@ const selectedChatId = ref(-1);
 /** メッセージ */
 const messages = useLiveQuery<ChatMessage[]>(
   () => store.messages.getAll().where("chatId").equals(selectedChatId.value).toArray(), [selectedChatId]);
-
+/** 選択中のエージェント */
+const selectedAgentIds = ref<number[]>([]);
 /*
  * 新規メッセージ追加
  */
@@ -158,41 +146,4 @@ function startChatWaiting(color?: string) {
 function stopChatWaiting() {
   chatWaiting.value.pop();
 }
-
-/* 
- * エージェント選択
- */
-/** 選択されたエージェントID */
-const selectedAgentIds = ref<number[]>([]);
-/** エージェントリスト v-selectに最適な形にマッピング */
-const agents = useLiveQuery(async () => (await store.agents.getAll().toArray())
-  .filter(x => !x.isDeleted)
-  .map(a => ({ title: a.name, value: a.id, subtitle: a.model }))
-  || [], []);
-/** 全エージェントが選択されている */
-const allAgentSelected = computed(() => {
-  return selectedAgentIds.value.length === agents.value.length
-});
-/** 一部のエージェントが選択されている */
-const someAgentSelected = computed(() => {
-  return selectedAgentIds.value.length > 0
-});
-/** エージェント全選択/解除 */
-function toggleSelectAllAgent() {
-  if (allAgentSelected.value) {
-    selectedAgentIds.value = [];
-  } else {
-    selectedAgentIds.value = agents.value.map(x => x.value);
-  }
-}
-
-onMounted(async () => {
-  // エージェントが未選択の場合、ピン留めされたエージェントを探して選択する
-  if (selectedAgentIds.value.length == 0) {
-    const pinnedAgents = (await store.agents.getAll().toArray()).filter(x => x.isPinned);
-    if (pinnedAgents.length > 0) {
-      selectedAgentIds.value = pinnedAgents.map(x => x.id);
-    }
-  }
-});
 </script>
