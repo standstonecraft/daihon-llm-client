@@ -94,7 +94,7 @@ const generateTitle = async () => {
  * エージェント選択
  */
 /** 選択されたエージェントID */
-const selectedAgentIds = defineModel<number[]>({ required: true, default: [] });
+const selectedAgentIds = defineModel<number[]>("selectedAgentIds", { required: true, default: [] });
 /** エージェントリスト v-selectに最適な形にマッピング */
 const agents = useLiveQuery(async () => (await store.agents.getAll().toArray())
   .filter(x => !x.isDeleted)
