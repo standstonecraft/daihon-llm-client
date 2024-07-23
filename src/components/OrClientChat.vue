@@ -25,7 +25,7 @@
         <v-btn @click="addContent" icon="$plus" color="secondary" v-tooltip="'Add Message'">
         </v-btn>
         <!-- send button -->
-        <v-btn @click="sendChat(chatId, selectedAgentIds)" icon="mdi-send" color="primary" v-tooltip="'Send'">
+        <v-btn @click="sendChat(selectedChatId, selectedAgentIds)" icon="mdi-send" color="primary" v-tooltip="'Send'">
         </v-btn>
       </div>
     </div>
@@ -84,10 +84,12 @@ async function addContent() {
     createdAt: new Date().toISOString(),
     invalid: []
   });
-  setTimeout(() => {
-    newAddedContentId.value = newContentId;
-    scrollToBottom();
-  }, 100);
+
+  //sleep
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  newAddedContentId.value = newContentId;
+  scrollToBottom();
 }
 
 /*
