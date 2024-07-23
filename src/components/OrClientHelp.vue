@@ -2,6 +2,7 @@
   <v-main max-height="100vh" style="overflow-y: auto;">
     <v-sheet class="pa-4" fill-height>
       <h1>Help</h1>
+      <hr>
       <h2>Get Started</h2>
       <p>API Key Setting</p>
       <ol>
@@ -16,7 +17,8 @@
         <li>Choose the LLM model(s) on <a href="https://openrouter.ai/models" target="_blank">Models</a> page.To copy
           the
           model name, click the clipboard button next to the model name.</li>
-        <li>In the Agent <v-icon>mdi-account-tie</v-icon> page, click the "ADD AGENT" button and enter the required
+        <li>In the Agent <v-icon>mdi-account-tie</v-icon> page (If mobile, tap the menu icon at first), click the "ADD
+          AGENT" button and enter the required
           information. </li>
       </ol>
       <p>Start Chat</p>
@@ -39,7 +41,7 @@
     </v-sheet>
   </v-main>
 </template>
-<style>
+<style scoped>
 p {
   padding-left: 1rem;
   margin-top: 1rem;
@@ -47,5 +49,9 @@ p {
 
 ol {
   padding-left: 2rem;
+}
+
+hr {
+  margin-block: 2rem;
 }
 </style>
