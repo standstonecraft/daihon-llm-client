@@ -1,5 +1,6 @@
 <template>
   <v-layout class="fill-height fill-width">
+    <!-- ヘッダー モバイル時のみメニューの代わりに表示 -->
     <v-app-bar density="compact" elevation="2" v-if="mobile">
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>
@@ -64,12 +65,11 @@
         </v-list>
       </template>
     </v-navigation-drawer>
-    <v-main max-height="100vh" style="overflow-y: auto;">
-      <OrClientChat v-model="chatDrawer" v-if="tab === 'Chat'" />
-      <OrClientAgentList v-if="tab === 'Agents'" />
-      <OrClientConfig v-if="tab === 'Config'" />
-      <OrClientHelp v-if="tab === 'Help'" />
-    </v-main>
+    <!-- メインコンテンツ -->
+    <OrClientChat v-model="chatDrawer" v-if="tab === 'Chat'" />
+    <OrClientAgentList v-if="tab === 'Agents'" />
+    <OrClientConfig v-if="tab === 'Config'" />
+    <OrClientHelp v-if="tab === 'Help'" />
 
     <!-- dialog -->
     <v-dialog v-model="errorDialog" width="auto" @close="errorDialog = false; errorDialogText = ''">
