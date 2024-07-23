@@ -18,7 +18,6 @@
 
 <script setup lang="ts">
 import store from '@/ts/dataStore';
-import useLiveQuery from '@/ts/withDexie';
 import { askChatTitle } from '@/ts/llm';
 import { injectionKeys } from './injectionSymbols';
 
