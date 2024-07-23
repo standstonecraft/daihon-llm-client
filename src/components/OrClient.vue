@@ -123,7 +123,7 @@ const menus: { name: MenuType; icon: string }[] = [
 /** ドロワー開閉 */
 const drawer = ref(true);
 /** ドロワー展開 */
-const rail = ref(false);
+const rail = ref(true);
 /** チャットドロワー展開 */
 const chatDrawer = ref(true);
 function clickTab(tabName: MenuType) {
