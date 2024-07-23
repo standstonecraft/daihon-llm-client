@@ -14,23 +14,20 @@
             v-model="newAddedContentId" />
         </div>
 
-        <!-- 最下部要素 スクロール用 見切れ防止のため高さにゆとり -->
-        <div ref="listBottom" style="height: 20px;"></div>
+        <!-- スクロール用 見切れ防止のため高さにゆとり -->
+        <div style="min-height: 100px;"></div>
+        <!-- スクロール用 最下部要素 -->
+        <div ref="listBottom">&nbsp;</div>
       </div>
-      <v-divider></v-divider>
-      <!-- footer -->
-      <v-footer app color="background" class="d-flex justify-end ga-2 align-stretch px-3 pa-1">
+      <!-- floating buttons -->
+      <div class="d-flex flex-column-reverse ga-2" style="position: absolute; bottom: 10px; right: 30px;">
         <!-- add message button -->
-        <v-btn v-if="selectedChatId > -1" @click="addContent" variant="elevated">
-          <v-icon>$plus</v-icon>
-          <v-tooltip activator="parent" location="bottom">Add Message</v-tooltip>
+        <v-btn @click="addContent" icon="$plus" color="secondary" v-tooltip="'Add Message'">
         </v-btn>
         <!-- send button -->
-        <v-btn @click="sendChat(chatId, selectedAgentIds)" variant="elevated">
-          <v-icon color="primary">mdi-send</v-icon>
-          <v-tooltip activator="parent" location="bottom">Send</v-tooltip>
+        <v-btn @click="sendChat(chatId, selectedAgentIds)" icon="mdi-send" color="primary" v-tooltip="'Send'">
         </v-btn>
-      </v-footer>
+      </div>
     </div>
     <div v-else class="d-flex w-100 h-100 align-center justify-center">
       <span class="text-h5 text-center">Select a chat to start</span>
@@ -89,6 +86,7 @@ async function addContent() {
   });
   setTimeout(() => {
     newAddedContentId.value = newContentId;
+    scrollToBottom();
   }, 100);
 }
 
@@ -99,10 +97,12 @@ async function addContent() {
 const listBottom = ref<HTMLElement>();
 watch(selectedChatId, () => {
   setTimeout(() => {
-    listBottom.value?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    scrollToBottom();
   }, 100);
 });
-
+function scrollToBottom() {
+  listBottom.value?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
 /*
  * チャット送信と待機中状態
  */
