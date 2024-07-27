@@ -28,8 +28,11 @@
           <v-divider class="mt-2"></v-divider>
         </template>
         <template v-slot:selection="{ item, index }">
-          <v-chip v-if="index < 3">
-            <span>{{ item.title }}</span>
+          <v-chip v-if="index < 3" class="pl-0">
+            <v-avatar color="primary">
+              {{ editAvaterChars(item.raw.subtitle) }}
+            </v-avatar>
+            <span class="ml-1">{{ item.title }}</span>
           </v-chip>
           <span v-if="index === 3" class="text-grey text-caption align-self-center">
             (+{{ selectedAgentIds.length - 3 }})
@@ -126,4 +129,10 @@ onMounted(async () => {
     }
   }
 });
+
+function editAvaterChars(str: string) {
+  let ret = ((str || "").split(/[-:/.]/g).map((x) => x.replace(/\d.*/g, '').substring(0, 1)).filter(x => x).join('') + "  ")
+    .substring(0, 3).trim();
+  return ret.toUpperCase();
+}
 </script>
