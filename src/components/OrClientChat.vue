@@ -20,8 +20,8 @@
         <div ref="listBottom">&nbsp;</div>
 
         <!-- floating buttons -->
-        <div class="mt-auto d-flex flex-column-reverse ga-2 align-end"
-          style="position: sticky; bottom: 10px; right: 30px;">
+        <div class="align-self-end mt-auto d-flex flex-column-reverse ga-2 align-end pe-2"
+          style="position: sticky; bottom: 10px;">
           <!-- add message button -->
           <v-btn @click="addContent" icon="$plus" color="secondary" v-tooltip="'Add Message'">
           </v-btn>
