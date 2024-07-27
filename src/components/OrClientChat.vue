@@ -31,12 +31,13 @@
         </div>
 
       </div>
-      <v-textarea v-model="quickField" @keyup.ctrl.enter.prevent="quickSend"
-        placeholder="Quick Input (Ctrl + Enter to Send)" rows="1" max-rows="10" auto-grow hide-details="auto"
-        density="compact" prepend-inner-icon="$edit">
+      <v-textarea v-model="quickField" @keyup.ctrl.enter.prevent="quickSend" placeholder="Quick Input" rows="1"
+        max-rows="10" auto-grow hide-details="auto" density="compact">
+        <template v-slot:prepend-inner>
+          <v-icon v-tooltip="'Ctrl + Enter To Send. To attach an image, click the \'+\' button.'">$edit</v-icon>
+        </template>
         <template v-slot:append-inner>
-          <v-icon v-tooltip="'To attach an image, click the \'+\' button.'">mdi-help-circle</v-icon>
-
+          <v-icon v-tooltip="'Quick Send'" @click="quickSend">mdi-chevron-right-circle</v-icon>
         </template>
       </v-textarea>
     </div>
